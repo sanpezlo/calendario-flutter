@@ -1,13 +1,16 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 
-class FirebaseApi {
+class FirebaseMessagingService {
   final _firebaseMessaging = FirebaseMessaging.instance;
 
-  Future<void> initNotification() async {
+  Future<void> initialize() async {
     await _firebaseMessaging.requestPermission();
 
     final fcmToken = await _firebaseMessaging.getToken();
 
-    print('FCM Token: $fcmToken');
+    if (kDebugMode) {
+      print('FCM Token: $fcmToken');
+    }
   }
 }

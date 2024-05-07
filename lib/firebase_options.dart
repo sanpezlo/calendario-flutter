@@ -23,10 +23,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for macos - '
@@ -65,6 +62,15 @@ class DefaultFirebaseOptions {
     messagingSenderId: '354878657152',
     projectId: 'calendario-35a0e',
     storageBucket: 'calendario-35a0e.appspot.com',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAUXWgVGqhImRqT2Zn31x6SaHPI93a1Ja0',
+    appId: '1:354878657152:ios:c1ac8dd2a3d0da9d724c65',
+    messagingSenderId: '354878657152',
+    projectId: 'calendario-35a0e',
+    storageBucket: 'calendario-35a0e.appspot.com',
+    iosBundleId: 'com.example.calendarioFlutter',
   );
 
 }
