@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 class CustomScaffold extends StatefulWidget {
   final Widget body;
   final FloatingActionButton? floatingActionButton;
+  final String? textAppBar;
 
   static final adminNavigations = [
     NavigationModel(
@@ -46,7 +47,10 @@ class CustomScaffold extends StatefulWidget {
   ];
 
   const CustomScaffold(
-      {super.key, required this.body, this.floatingActionButton});
+      {super.key,
+      required this.body,
+      this.floatingActionButton,
+      this.textAppBar});
 
   @override
   State<CustomScaffold> createState() => _CustomScaffoldState();
@@ -105,7 +109,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
           floatingActionButton: widget.floatingActionButton,
           appBar: AppBar(
             backgroundColor: AppColor.alternative,
-            title: const Text('Administrador'),
+            title: Text(widget.textAppBar ?? 'Administrador'),
             actions: [
               IconButton(
                 onPressed: () {

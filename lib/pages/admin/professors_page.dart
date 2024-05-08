@@ -25,6 +25,7 @@ class _AdminProfessorsPageState extends State<AdminProfessorsPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
+      textAppBar: "Profesores",
       body: StreamBuilder(
           stream: FirebaseFirestoreService().getProfessorsStream(),
           builder: (context, streamSnapshot) {

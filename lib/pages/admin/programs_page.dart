@@ -25,6 +25,7 @@ class _AdminProgramsPageState extends State<AdminProgramsPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
+      textAppBar: "Programas",
       body: StreamBuilder(
         stream: FirebaseFirestoreService().getProgramsStream(),
         builder: (context, streamSnapshot) {

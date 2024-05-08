@@ -39,6 +39,7 @@ class _AdminSubjectsPageState extends State<AdminSubjectsPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
+      textAppBar: "Materias",
       body: StreamBuilder(
           stream: getStream(),
           builder: (context, streamSnapshot) {

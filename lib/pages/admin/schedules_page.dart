@@ -39,6 +39,7 @@ class _AdminSchedulesPageState extends State<AdminSchedulesPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
+      textAppBar: "Horarios",
       body: StreamBuilder(
           stream: getStream(),
           builder: (context, streamSnapshot) {
