@@ -22,6 +22,7 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
   @override
   Widget build(BuildContext context) {
     return CustomTextField(
+      maxLines: 1,
       hintText: "Contraseña",
       validator: (value) {
         if (value == null || value.isEmpty) {
