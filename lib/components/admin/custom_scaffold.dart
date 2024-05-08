@@ -8,6 +8,7 @@ import 'package:calendario_flutter/pages/admin/home_page.dart';
 import 'package:calendario_flutter/pages/admin/login_page.dart';
 import 'package:calendario_flutter/pages/admin/professors_page.dart';
 import 'package:calendario_flutter/pages/admin/programs_page.dart';
+import 'package:calendario_flutter/pages/admin/schedules_page.dart';
 import 'package:calendario_flutter/pages/admin/subjects_page.dart';
 import 'package:calendario_flutter/services/firebase_auth_service.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class CustomScaffold extends StatefulWidget {
       title: "Materias",
     ),
     NavigationModel(
-      id: "/admin-schedules",
+      id: AdminSchedulesPage.id,
       icon: Icons.schedule,
       title: "Horarios",
     ),

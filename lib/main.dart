@@ -2,6 +2,7 @@ import 'package:calendario_flutter/pages/admin/home_page.dart';
 import 'package:calendario_flutter/pages/admin/login_page.dart';
 import 'package:calendario_flutter/pages/admin/professors_page.dart';
 import 'package:calendario_flutter/pages/admin/programs_page.dart';
+import 'package:calendario_flutter/pages/admin/schedules_page.dart';
 import 'package:calendario_flutter/pages/admin/splash_page.dart';
 import 'package:calendario_flutter/pages/admin/subjects_page.dart';
 import 'package:calendario_flutter/pages/forgot_password_page.dart';
@@ -56,6 +57,7 @@ class MainApp extends StatelessWidget {
         AdminProgramsPage.id: (context) => const AdminProgramsPage(),
         AdminProfessorsPage.id: (context) => const AdminProfessorsPage(),
         AdminSubjectsPage.id: (context) => const AdminSubjectsPage(),
+        AdminSchedulesPage.id: (context) => const AdminSchedulesPage(),
       },
     );
   }

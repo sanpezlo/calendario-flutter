@@ -1,10 +1,13 @@
 import 'package:calendario_flutter/models/professor_model.dart';
 import 'package:calendario_flutter/models/program_model.dart';
+import 'package:calendario_flutter/models/schedule_model.dart';
 import 'package:calendario_flutter/models/subject_model.dart';
 import 'package:calendario_flutter/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseFirestoreService {
+  // User
+
   Future addUser(UserModel userModel) {
     return FirebaseFirestore.instance
         .collection("User")
@@ -23,6 +26,8 @@ class FirebaseFirestoreService {
       return null;
     }
   }
+
+  // Program
 
   Future<void> addProgram(ProgramModel programModel) {
     return FirebaseFirestore.instance
@@ -53,6 +58,8 @@ class FirebaseFirestoreService {
     return FirebaseFirestore.instance.collection("Program").snapshots();
   }
 
+  // Professor
+
   Future<void> addProfessor(ProfessorModel professorModel) {
     return FirebaseFirestore.instance
         .collection("Professor")
@@ -82,7 +89,7 @@ class FirebaseFirestoreService {
     return FirebaseFirestore.instance.collection("Professor").snapshots();
   }
 
-  // SUBJECTS
+  // Subject
 
   Future<void> addSubject(SubjectModel subjectModel) {
     return FirebaseFirestore.instance
@@ -111,5 +118,36 @@ class FirebaseFirestoreService {
 
   Stream<QuerySnapshot> getSubjectsStreamQuery() {
     return FirebaseFirestore.instance.collection("Subject").snapshots();
+  }
+
+  // Schedule
+
+  Future<void> addSchedule(ScheduleModel schedule) {
+    return FirebaseFirestore.instance
+        .collection("Schedule")
+        .doc(schedule.id)
+        .set(schedule.toJson());
+  }
+
+  Future<void> updateSchedule(ScheduleModel schedule) {
+    return FirebaseFirestore.instance
+        .collection("Schedule")
+        .doc(schedule.id)
+        .update(schedule.toJson());
+  }
+
+  Future<void> deleteSchedule(String id) {
+    return FirebaseFirestore.instance.collection("Schedule").doc(id).delete();
+  }
+
+  Stream<List<ScheduleModel>> getSchedulesStream() {
+    return FirebaseFirestore.instance.collection("Schedule").snapshots().map(
+        (querySnapshot) => querySnapshot.docs
+            .map((e) => ScheduleModel.fromJson(e.data()))
+            .toList());
+  }
+
+  Stream<QuerySnapshot> getSchedulesStreamQuery() {
+    return FirebaseFirestore.instance.collection("Schedule").snapshots();
   }
 }
