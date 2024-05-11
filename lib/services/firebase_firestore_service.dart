@@ -1,3 +1,4 @@
+import 'package:calendario_flutter/models/event_model.dart';
 import 'package:calendario_flutter/models/professor_model.dart';
 import 'package:calendario_flutter/models/program_model.dart';
 import 'package:calendario_flutter/models/schedule_model.dart';
@@ -149,5 +150,36 @@ class FirebaseFirestoreService {
 
   Stream<QuerySnapshot> getSchedulesStreamQuery() {
     return FirebaseFirestore.instance.collection("Schedule").snapshots();
+  }
+
+  // Event
+
+  Future<void> addEvent(EventModel eventModel) {
+    return FirebaseFirestore.instance
+        .collection("Event")
+        .doc(eventModel.id)
+        .set(eventModel.toJson());
+  }
+
+  Future<void> updateEvent(EventModel eventModel) {
+    return FirebaseFirestore.instance
+        .collection("Event")
+        .doc(eventModel.id)
+        .update(eventModel.toJson());
+  }
+
+  Future<void> deleteEvent(String id) {
+    return FirebaseFirestore.instance.collection("Event").doc(id).delete();
+  }
+
+  Stream<List<EventModel>> getEventsStream() {
+    return FirebaseFirestore.instance.collection("Event").snapshots().map(
+        (querySnapshot) => querySnapshot.docs
+            .map((e) => EventModel.fromJson(e.data()))
+            .toList());
+  }
+
+  Stream<QuerySnapshot> getEventsStreamQuery() {
+    return FirebaseFirestore.instance.collection("Event").snapshots();
   }
 }

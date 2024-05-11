@@ -3,10 +3,13 @@ import 'package:calendario_flutter/components/buttons/primary_button.dart';
 import 'package:calendario_flutter/components/buttons/secondary_button.dart';
 import 'package:calendario_flutter/components/dialogs/error_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/loading_dialog.dart';
+import 'package:calendario_flutter/components/text_fields/custom_date_picker.dart';
 import 'package:calendario_flutter/components/text_fields/custom_dropdown_button.dart';
+import 'package:calendario_flutter/components/text_fields/custom_multi_select_field.dart';
 import 'package:calendario_flutter/components/text_fields/custom_text_field.dart';
 import 'package:calendario_flutter/components/text_fields/custom_time_picker.dart';
 import 'package:calendario_flutter/models/error_model.dart';
+import 'package:calendario_flutter/models/event_model.dart';
 import 'package:calendario_flutter/models/program_model.dart';
 import 'package:calendario_flutter/models/schedule_model.dart';
 import 'package:calendario_flutter/models/subject_model.dart';
@@ -14,60 +17,61 @@ import 'package:calendario_flutter/services/firebase_firestore_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
 
-class ScheduleDialog extends StatefulWidget {
-  final List<SubjectModel> subjects;
+class EventDialog extends StatefulWidget {
   final List<ProgramModel> programs;
 
-  final ScheduleModel? scheduleModel;
+  final EventModel? eventModel;
   final bool isDelete;
 
-  const ScheduleDialog(
+  const EventDialog(
       {super.key,
-      required this.subjects,
       required this.programs,
-      this.scheduleModel,
+      this.eventModel,
       this.isDelete = false});
 
   @override
-  State<ScheduleDialog> createState() => _ScheduleDialogState();
+  State<EventDialog> createState() => _EventDialogState();
 
   static void show({
     required BuildContext context,
-    required List<SubjectModel> subjects,
     required List<ProgramModel> programs,
-    ScheduleModel? scheduleModel,
+    EventModel? eventModel,
     bool isDelete = false,
   }) {
     showDialog(
       context: context,
-      builder: (context) => ScheduleDialog(
-        subjects: subjects,
+      builder: (context) => EventDialog(
         programs: programs,
-        scheduleModel: scheduleModel,
+        eventModel: eventModel,
         isDelete: isDelete,
       ),
     );
   }
 }
 
-class _ScheduleDialogState extends State<ScheduleDialog> {
+class _EventDialogState extends State<EventDialog> {
   final _formKey = GlobalKey<FormState>();
 
-  String? subjectIdController;
-  TimeOfDay? startTimeController;
+  final titleController = TextEditingController();
+  final descriptionController = TextEditingController();
+
+  DateTime? dateController;
   TimeOfDay? endTimeController;
-  String? dayController;
+  List<String> programIdsController = [];
 
   @override
   void initState() {
     super.initState();
 
-    if (widget.scheduleModel != null) {
-      subjectIdController = widget.scheduleModel!.subjectId;
-      startTimeController = widget.scheduleModel!.startTime;
-      endTimeController = widget.scheduleModel!.endTime;
-      dayController = widget.scheduleModel!.day.name;
+    if (widget.eventModel != null) {
+      titleController.text = widget.eventModel!.title;
+      descriptionController.text = widget.eventModel!.description;
+      dateController = widget.eventModel!.date;
+      endTimeController = widget.eventModel!.endTime;
+      programIdsController = widget.eventModel!.programIds;
     }
   }
 
@@ -105,7 +109,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
       child: Column(
         children: [
           Text(
-            widget.scheduleModel != null
+            widget.eventModel != null
                 ? widget.isDelete
                     ? "¿Estás seguro de eliminar este horario?"
                     : "Actualizar Horario"
@@ -121,58 +125,56 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
           const SizedBox(
             height: 32,
           ),
-          widget.isDelete
-              ? CustomTextField(
-                  maxLines: 2,
-                  hintText: "Materia",
-                  enabled: false,
-                  controller: TextEditingController(
-                      text: widget.subjects
-                          .where((subjectModel) =>
-                              subjectModel.id ==
-                              widget.scheduleModel!.subjectId)
-                          .map((e) =>
-                              "${e.name} - ${widget.programs.where((programModel) => programModel.id == e.programId).map((e) => e.name).firstOrNull ?? "No encontrado"}")
-                          .firstOrNull),
-                )
-              : CustomDropdownButton(
-                  isDense: false,
-                  hintText: "Materia",
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Por favor seleccione una materia";
-                    }
+          CustomTextField(
+            hintText: "Título",
+            enabled: !widget.isDelete,
+            controller: titleController,
+            validator: (title) {
+              if (title == null || title.isEmpty) {
+                return "Por favor ingrese un título";
+              }
 
-                    return null;
-                  },
-                  value: subjectIdController,
-                  items: [
-                    for (final subjectModel in widget.subjects)
-                      DropdownMenuItem(
-                        value: subjectModel.id,
-                        child: Text(
-                          "${subjectModel.name} - ${widget.programs.where((programModel) => programModel.id == subjectModel.programId).map((e) => e.name).firstOrNull ?? "No encontrado"}",
-                        ),
-                      )
-                  ],
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      subjectIdController = newValue!;
-                    });
-                  },
-                ),
+              if (title.length < 3) {
+                return "El título debe tener al menos 3 caracteres";
+              }
+
+              return null;
+            },
+          ),
           const SizedBox(
             height: 16,
           ),
           CustomTextField(
-            hintText: "Hora de inicio",
+            hintText: "Descripción",
+            maxLines: 3,
+            enabled: !widget.isDelete,
+            controller: descriptionController,
+            validator: (description) {
+              if (description == null || description.isEmpty) {
+                return "Por favor ingrese una descripción";
+              }
+
+              if (description.length < 3) {
+                return "La descripción debe tener al menos 3 caracteres";
+              }
+
+              return null;
+            },
+          ),
+          const SizedBox(
+            height: 16,
+          ),
+          CustomTextField(
+            hintText: "Fecha y hora",
             controller: TextEditingController(
-              text: startTimeController?.format(context),
+              text: dateController != null
+                  ? DateFormat("dd/MM/yyyy h:mm a").format(dateController!)
+                  : null,
             ),
             enabled: !widget.isDelete,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return "Por favor seleccione una hora de inicio";
+                return "Por favor seleccione una fecha y hora";
               }
 
               return null;
@@ -181,19 +183,35 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
               setState(() {});
             },
             onTap: () async {
-              final TimeOfDay? timeOfDay =
-                  await CustomTimePicker.showTimePicker(
-                      context: context, initialTime: startTimeController);
+              final DateTime? dateTime = await CustomDatePicker.showDatePicker(
+                context: context,
+                initialDate: dateController ?? DateTime.now(),
+              );
 
-              if (timeOfDay != null) {
-                setState(() {
-                  startTimeController = timeOfDay;
-                });
-                Future.delayed(Duration.zero, () {
+              if (dateTime != null) {
+                final TimeOfDay? timeOfDay =
+                    await CustomTimePicker.showTimePicker(
+                  context: context,
+                  initialTime:
+                      TimeOfDay.fromDateTime(dateController ?? DateTime.now()),
+                );
+
+                if (timeOfDay != null) {
                   setState(() {
-                    _formKey.currentState!.validate();
+                    dateController = DateTime(
+                      dateTime.year,
+                      dateTime.month,
+                      dateTime.day,
+                      timeOfDay.hour,
+                      timeOfDay.minute,
+                    );
                   });
-                });
+                  Future.delayed(Duration.zero, () {
+                    setState(() {
+                      _formKey.currentState!.validate();
+                    });
+                  });
+                }
               }
             },
           ),
@@ -211,15 +229,16 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                 return "Por favor seleccione una hora de fin";
               }
 
-              if (startTimeController != null &&
-                  endTimeController != null &&
-                  startTimeController!.isAfter(endTimeController!)) {
+              if (dateController == null) return null;
+
+              final startTime = TimeOfDay.fromDateTime(dateController!);
+
+              if (endTimeController != null &&
+                  startTime.isAfter(endTimeController!)) {
                 return "La hora de fin debe ser después de la hora de inicio";
               }
 
-              if (startTimeController != null &&
-                  endTimeController != null &&
-                  startTimeController == endTimeController) {
+              if (endTimeController != null && startTime == endTimeController) {
                 return "La hora de fin no puede ser igual a la hora de inicio";
               }
 
@@ -232,7 +251,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
               final TimeOfDay? timeOfDay =
                   await CustomTimePicker.showTimePicker(
                 context: context,
-                initialTime: endTimeController,
+                initialTime: endTimeController ?? TimeOfDay.now(),
               );
 
               if (timeOfDay != null) {
@@ -250,39 +269,34 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
           const SizedBox(
             height: 16,
           ),
-          widget.isDelete
-              ? CustomTextField(
-                  hintText: "Día",
-                  enabled: false,
-                  controller: TextEditingController(
-                    text: widget.scheduleModel!.day.format(),
-                  ),
+          CustomMultiSelectField(
+            items: widget.programs
+                .map(
+                  (program) =>
+                      MultiSelectItem<String>(program.id, program.name),
                 )
-              : CustomDropdownButton(
-                  hintText: "Día",
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Por favor seleccione un día";
-                    }
+                .toList(),
+            onConfirm: (values) {
+              setState(() {
+                programIdsController = values.map((e) => e.toString()).toList();
+              });
+            },
+            title: "Programas",
+            buttonText: programIdsController.isEmpty
+                ? "Seleccione uno o más programas"
+                : programIdsController.length == 1
+                    ? "1 programa seleccionado"
+                    : "${programIdsController.length} programas seleccionados",
+            searchHint: "Buscar programa",
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "Por favor seleccione al menos un programa";
+              }
 
-                    return null;
-                  },
-                  value: dayController,
-                  items: [
-                    for (final day in Day.values)
-                      DropdownMenuItem(
-                        value: day.name,
-                        child: Text(
-                          day.format(),
-                        ),
-                      )
-                  ],
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      dayController = newValue!;
-                    });
-                  },
-                ),
+              return null;
+            },
+            initialValue: programIdsController,
+          ),
           const SizedBox(
             height: 16,
           ),
@@ -295,7 +309,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
 
                     try {
                       await FirebaseFirestoreService()
-                          .deleteSchedule(widget.scheduleModel!.id)
+                          .deleteEvent(widget.eventModel!.id)
                           .then(
                         (value) {
                           Navigator.pop(context);
@@ -321,16 +335,16 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                     LoadingDialog.show(context: context);
 
                     try {
-                      if (widget.scheduleModel != null) {
+                      if (widget.eventModel != null) {
                         await FirebaseFirestoreService()
-                            .updateSchedule(
-                          ScheduleModel(
-                            id: widget.scheduleModel!.id,
-                            subjectId: subjectIdController!,
-                            startTime: startTimeController!,
+                            .updateEvent(
+                          EventModel(
+                            id: widget.eventModel!.id,
+                            title: titleController.text,
+                            description: descriptionController.text,
+                            date: dateController!,
                             endTime: endTimeController!,
-                            day: Day.values.firstWhere(
-                                (element) => element.name == dayController),
+                            programIds: programIdsController,
                           ),
                         )
                             .then(
@@ -342,14 +356,14 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                         );
                       } else {
                         await FirebaseFirestoreService()
-                            .addSchedule(
-                          ScheduleModel(
+                            .addEvent(
+                          EventModel(
                             id: const Uuid().v4(),
-                            subjectId: subjectIdController!,
-                            startTime: startTimeController!,
+                            title: titleController.text,
+                            description: descriptionController.text,
+                            date: dateController!,
                             endTime: endTimeController!,
-                            day: Day.values.firstWhere(
-                                (element) => element.name == dayController),
+                            programIds: programIdsController,
                           ),
                         )
                             .then(
@@ -369,7 +383,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                       }
                     }
                   },
-                  text: widget.scheduleModel != null ? "Actualizar" : "Crear",
+                  text: widget.eventModel != null ? "Actualizar" : "Crear",
                 ),
         ],
       ),

@@ -4,6 +4,7 @@ import 'package:calendario_flutter/components/dialogs/loading_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/user_dialog.dart';
 import 'package:calendario_flutter/models/error_model.dart';
 import 'package:calendario_flutter/models/navigation_model.dart';
+import 'package:calendario_flutter/pages/admin/events_page.dart';
 import 'package:calendario_flutter/pages/admin/home_page.dart';
 import 'package:calendario_flutter/pages/admin/login_page.dart';
 import 'package:calendario_flutter/pages/admin/professors_page.dart';
@@ -40,7 +41,7 @@ class CustomScaffold extends StatefulWidget {
       title: "Horarios",
     ),
     NavigationModel(
-      id: "/admin-events",
+      id: AdminEventsPage.id,
       icon: Icons.event,
       title: "Eventos",
     ),

@@ -1,3 +1,4 @@
+import 'package:calendario_flutter/pages/admin/events_page.dart';
 import 'package:calendario_flutter/pages/admin/home_page.dart';
 import 'package:calendario_flutter/pages/admin/login_page.dart';
 import 'package:calendario_flutter/pages/admin/professors_page.dart';
@@ -18,6 +19,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'firebase_options.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +38,10 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
+      supportedLocales: const [
+        Locale('es', 'ES'),
+      ],
       theme: ThemeData(
         bottomSheetTheme: BottomSheetThemeData(
           backgroundColor: Colors.grey.withOpacity(0.5),
@@ -58,6 +64,7 @@ class MainApp extends StatelessWidget {
         AdminProfessorsPage.id: (context) => const AdminProfessorsPage(),
         AdminSubjectsPage.id: (context) => const AdminSubjectsPage(),
         AdminSchedulesPage.id: (context) => const AdminSchedulesPage(),
+        AdminEventsPage.id: (context) => const AdminEventsPage(),
       },
     );
   }
