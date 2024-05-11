@@ -7,7 +7,7 @@ class CustomDatePicker {
       DateTime? firstDate,
       DateTime? lastDate}) {
     return material.showDatePicker(
-      locale: const material.Locale("es", "ES"),
+      locale: const material.Locale("es", "CO"),
       helpText: "Fecha y hora",
       cancelText: "Cancelar",
       confirmText: "Aceptar",

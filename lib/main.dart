@@ -40,7 +40,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
       supportedLocales: const [
-        Locale('es', 'ES'),
+        Locale('en', 'US'),
       ],
       theme: ThemeData(
         bottomSheetTheme: BottomSheetThemeData(
