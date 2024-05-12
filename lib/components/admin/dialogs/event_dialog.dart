@@ -4,7 +4,6 @@ import 'package:calendario_flutter/components/buttons/secondary_button.dart';
 import 'package:calendario_flutter/components/dialogs/error_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/loading_dialog.dart';
 import 'package:calendario_flutter/components/text_fields/custom_date_picker.dart';
-import 'package:calendario_flutter/components/text_fields/custom_dropdown_button.dart';
 import 'package:calendario_flutter/components/text_fields/custom_multi_select_field.dart';
 import 'package:calendario_flutter/components/text_fields/custom_text_field.dart';
 import 'package:calendario_flutter/components/text_fields/custom_time_picker.dart';
@@ -12,7 +11,6 @@ import 'package:calendario_flutter/models/error_model.dart';
 import 'package:calendario_flutter/models/event_model.dart';
 import 'package:calendario_flutter/models/program_model.dart';
 import 'package:calendario_flutter/models/schedule_model.dart';
-import 'package:calendario_flutter/models/subject_model.dart';
 import 'package:calendario_flutter/services/firebase_firestore_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -183,36 +181,37 @@ class _EventDialogState extends State<EventDialog> {
               setState(() {});
             },
             onTap: () async {
-              final DateTime? dateTime = await CustomDatePicker.showDatePicker(
+              await CustomDatePicker.showDatePicker(
                 context: context,
                 initialDate: dateController ?? DateTime.now(),
-              );
+              ).then((dateTime) async {
+                if (dateTime != null) {
+                  final TimeOfDay? timeOfDay =
+                      await CustomTimePicker.showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.fromDateTime(
+                        dateController ?? DateTime.now()),
+                  );
 
-              if (dateTime != null) {
-                final TimeOfDay? timeOfDay =
-                    await CustomTimePicker.showTimePicker(
-                  context: context,
-                  initialTime:
-                      TimeOfDay.fromDateTime(dateController ?? DateTime.now()),
-                );
-
-                if (timeOfDay != null) {
-                  setState(() {
-                    dateController = DateTime(
-                      dateTime.year,
-                      dateTime.month,
-                      dateTime.day,
-                      timeOfDay.hour,
-                      timeOfDay.minute,
-                    );
-                  });
-                  Future.delayed(Duration.zero, () {
+                  if (timeOfDay != null) {
                     setState(() {
-                      _formKey.currentState!.validate();
+                      dateController = DateTime(
+                        dateTime.year,
+                        dateTime.month,
+                        dateTime.day,
+                        timeOfDay.hour,
+                        timeOfDay.minute,
+                      );
                     });
-                  });
+
+                    await Future.delayed(Duration.zero, () {
+                      setState(() {
+                        _formKey.currentState!.validate();
+                      });
+                    });
+                  }
                 }
-              }
+              });
             },
           ),
           const SizedBox(
@@ -258,7 +257,7 @@ class _EventDialogState extends State<EventDialog> {
                 setState(() {
                   endTimeController = timeOfDay;
                 });
-                Future.delayed(Duration.zero, () {
+                await Future.delayed(Duration.zero, () {
                   setState(() {
                     _formKey.currentState!.validate();
                   });

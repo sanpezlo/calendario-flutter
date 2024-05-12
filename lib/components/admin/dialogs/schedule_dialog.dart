@@ -189,7 +189,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                 setState(() {
                   startTimeController = timeOfDay;
                 });
-                Future.delayed(Duration.zero, () {
+                await Future.delayed(Duration.zero, () {
                   setState(() {
                     _formKey.currentState!.validate();
                   });
@@ -239,7 +239,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                 setState(() {
                   endTimeController = timeOfDay;
                 });
-                Future.delayed(Duration.zero, () {
+                await Future.delayed(Duration.zero, () {
                   setState(() {
                     _formKey.currentState!.validate();
                   });
