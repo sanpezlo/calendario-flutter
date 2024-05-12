@@ -46,11 +46,13 @@ class UserDialog extends StatelessWidget {
                 child: Text(userModel.name[0]),
               ),
               const SizedBox(width: 16),
-              Text(
-                userModel.name,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
+              Flexible(
+                child: Text(
+                  userModel.name,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],

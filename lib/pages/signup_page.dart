@@ -1,5 +1,6 @@
 import 'package:calendario_flutter/components/app_colors.dart';
 import 'package:calendario_flutter/components/custom_rich_text.dart';
+import 'package:calendario_flutter/components/text_fields/custom_dropdown_button.dart';
 import 'package:calendario_flutter/components/text_fields/email_text_field.dart';
 import 'package:calendario_flutter/components/dialogs/error_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/loading_dialog.dart';
@@ -7,20 +8,31 @@ import 'package:calendario_flutter/components/text_fields/password_text_field.da
 import 'package:calendario_flutter/components/text_fields/custom_text_field.dart';
 import 'package:calendario_flutter/components/buttons/secondary_button.dart';
 import 'package:calendario_flutter/models/error_model.dart';
+import 'package:calendario_flutter/models/program_model.dart';
 import 'package:calendario_flutter/pages/home_page.dart';
 import 'package:calendario_flutter/pages/login_page.dart';
 import 'package:calendario_flutter/services/firebase_auth_service.dart';
+import 'package:calendario_flutter/services/firebase_firestore_service.dart';
 import 'package:flutter/material.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   static const String id = "/signup";
+
+  const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  bool _isLoadingStream = true;
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  SignUpScreen({super.key});
+  String? programIdController;
+  String? semesterController;
 
   @override
   Widget build(BuildContext context) {
@@ -119,6 +131,126 @@ class SignUpScreen extends StatelessWidget {
           const SizedBox(
             height: 16,
           ),
+          StreamBuilder(
+            stream: FirebaseFirestoreService().getProgramsStream(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                _isLoadingStream = true;
+                Future.delayed(
+                  Duration.zero,
+                  () => LoadingDialog.show(context: context),
+                );
+
+                return const SizedBox.shrink();
+              }
+
+              if (snapshot.hasError) {
+                Future.delayed(
+                  Duration.zero,
+                  () => ErrorDialog.show(
+                    context: context,
+                    errorModel: ErrorModel(
+                        message:
+                            "No se pudo obtener la información de los programas"),
+                  ),
+                );
+
+                return const SizedBox.shrink();
+              }
+
+              if (!snapshot.hasData) {
+                Future.delayed(
+                  Duration.zero,
+                  () => ErrorDialog.show(
+                    context: context,
+                    errorModel: ErrorModel(
+                      message:
+                          "No se pudo obtener la información de los programas",
+                    ),
+                  ),
+                );
+
+                return const SizedBox.shrink();
+              }
+
+              if (_isLoadingStream) {
+                _isLoadingStream = false;
+                Future.delayed(Duration.zero, () => Navigator.pop(context));
+              }
+
+              return Column(
+                children: [
+                  CustomDropdownButton(
+                    hintText: "Programa",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Por favor seleccione un programa";
+                      }
+
+                      return null;
+                    },
+                    value: programIdController,
+                    items: [
+                      for (final ProgramModel programModel
+                          in snapshot.data ?? [])
+                        DropdownMenuItem(
+                          value: programModel.id,
+                          child: Text(
+                            programModel.name,
+                          ),
+                        )
+                    ],
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        programIdController = newValue!;
+                        semesterController = null;
+                      });
+                    },
+                  ),
+                  const SizedBox(
+                    height: 16,
+                  ),
+                  CustomDropdownButton(
+                    hintText: "Semestre",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Por favor seleccione un semestre";
+                      }
+
+                      return null;
+                    },
+                    value: semesterController,
+                    items: [
+                      for (var i = 1;
+                          i <=
+                              ((snapshot.data ?? [])
+                                      .where((programModel) =>
+                                          programModel.id ==
+                                          programIdController)
+                                      .firstOrNull
+                                      ?.semesters ??
+                                  0);
+                          i++)
+                        DropdownMenuItem(
+                          value: i.toString(),
+                          child: Text(
+                            i.toString(),
+                          ),
+                        )
+                    ],
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        semesterController = newValue!;
+                      });
+                    },
+                  ),
+                ],
+              );
+            },
+          ),
+          const SizedBox(
+            height: 16,
+          ),
           RichText(
             textAlign: TextAlign.start,
             text: TextSpan(
@@ -171,9 +303,12 @@ class SignUpScreen extends StatelessWidget {
               try {
                 await FirebaseAuthService()
                     .signUpWithEmailAndPassword(
-                        name: nameController.text,
-                        email: emailController.text,
-                        password: passwordController.text)
+                  name: nameController.text,
+                  email: emailController.text,
+                  password: passwordController.text,
+                  programId: programIdController!,
+                  semester: int.parse(semesterController!),
+                )
                     .then(
                   (value) {
                     Navigator.pop(context);

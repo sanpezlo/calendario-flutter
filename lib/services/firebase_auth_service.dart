@@ -19,14 +19,20 @@ class FirebaseAuthService {
     required String name,
     required String email,
     required String password,
+    required String programId,
+    required int semester,
   }) async {
     try {
       UserCredential userCredential = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
 
       if (userCredential.user != null) {
-        FirebaseFirestoreService().addUser(
-            UserModel(id: userCredential.user!.uid, name: name, email: email));
+        FirebaseFirestoreService().addUser(UserModel(
+            id: userCredential.user!.uid,
+            name: name,
+            email: email,
+            programId: programId,
+            semester: semester));
       }
 
       return userCredential.user;
