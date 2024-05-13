@@ -48,6 +48,15 @@ class FirebaseFirestoreService {
     return FirebaseFirestore.instance.collection("Program").doc(id).delete();
   }
 
+  Future<List<ProgramModel>> getPrograms() async {
+    QuerySnapshot querySnapshot =
+        await FirebaseFirestore.instance.collection("Program").get();
+
+    return querySnapshot.docs
+        .map((e) => ProgramModel.fromJson(e.data() as Map<String, dynamic>))
+        .toList();
+  }
+
   Stream<List<ProgramModel>> getProgramsStream() {
     return FirebaseFirestore.instance.collection("Program").snapshots().map(
         (querySnapshot) => querySnapshot.docs

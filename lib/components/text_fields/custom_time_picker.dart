@@ -12,6 +12,13 @@ class CustomTimePicker {
       minuteLabelText: "Minuto",
       errorInvalidText: "Hora inválida",
       context: context,
+      builder: (context, child) {
+        return material.Localizations.override(
+          context: context,
+          locale: const material.Locale('en', 'US'),
+          child: child,
+        );
+      },
       initialTime: initialTime ?? material.TimeOfDay.now(),
       initialEntryMode: material.TimePickerEntryMode.input,
     );

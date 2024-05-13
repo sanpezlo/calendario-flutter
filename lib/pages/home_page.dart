@@ -3,8 +3,12 @@ import 'package:calendario_flutter/components/dialogs/error_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/loading_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/user_dialog.dart';
 import 'package:calendario_flutter/models/error_model.dart';
+import 'package:calendario_flutter/models/program_model.dart';
+import 'package:calendario_flutter/models/user_model.dart';
 import 'package:calendario_flutter/services/firebase_auth_service.dart';
+import 'package:calendario_flutter/services/firebase_firestore_service.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class HomePage extends StatelessWidget {
   static const String id = "/home";
@@ -13,7 +17,10 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: FirebaseAuthService().getUserModel(),
+        future: Future.wait([
+          FirebaseAuthService().getUserModel(),
+          FirebaseFirestoreService().getPrograms(),
+        ]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Scaffold(
@@ -32,20 +39,22 @@ class HomePage extends StatelessWidget {
             );
           }
 
+          final UserModel userModel = snapshot.data![0] as UserModel;
+          final List<ProgramModel> programModels =
+              snapshot.data![1] as List<ProgramModel>;
+
           return Scaffold(
             appBar: AppBar(
               title: const Text('Calendario'),
               actions: [
                 IconButton(
                   onPressed: () {
-                    UserDialog.show(
-                        context: context, userModel: snapshot.data!);
+                    UserDialog.show(context: context, userModel: userModel);
                   },
                   icon: CircleAvatar(
                     backgroundColor: AppColor.primary,
                     foregroundColor: AppColor.white,
-                    child: Text(
-                        snapshot.data != null ? snapshot.data!.name[0] : ""),
+                    child: Text(snapshot.data != null ? userModel.name[0] : ""),
                   ),
                 )
               ],
@@ -83,11 +92,8 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-            body: const Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [],
-              ),
+            body: SfCalendar(
+              
             ),
           );
         });

@@ -220,7 +220,17 @@ class _EventDialogState extends State<EventDialog> {
           CustomTextField(
             hintText: "Hora de fin",
             controller: TextEditingController(
-              text: endTimeController?.format(context),
+              text: endTimeController != null
+                  ? DateFormat("h:mm a").format(
+                      DateTime(
+                        0,
+                        0,
+                        0,
+                        endTimeController!.hour,
+                        endTimeController!.minute,
+                      ),
+                    )
+                  : null,
             ),
             enabled: !widget.isDelete,
             validator: (value) {

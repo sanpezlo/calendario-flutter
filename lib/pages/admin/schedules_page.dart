@@ -12,6 +12,7 @@ import 'package:calendario_flutter/services/firebase_firestore_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AdminSchedulesPage extends StatefulWidget {
@@ -170,8 +171,22 @@ class _AdminSchedulesPageState extends State<AdminSchedulesPage> {
                                     "${e.name} - ${programs.where((element) => element.id == e.programId).firstOrNull?.name ?? "No encontrado"}")
                                 .firstOrNull ??
                             "No encontrado")),
-                        DataCell(Text(scheduleModel.startTime.format(context))),
-                        DataCell(Text(scheduleModel.endTime.format(context))),
+                        DataCell(
+                          Text(
+                            DateFormat("h:mm a").format(
+                              DateTime(0, 0, 0, scheduleModel.startTime.hour,
+                                  scheduleModel.startTime.minute),
+                            ),
+                          ),
+                        ),
+                        DataCell(
+                          Text(
+                            DateFormat("h:mm a").format(
+                              DateTime(0, 0, 0, scheduleModel.endTime.hour,
+                                  scheduleModel.endTime.minute),
+                            ),
+                          ),
+                        ),
                         DataCell(Text(scheduleModel.day.format())),
                         DataCell(
                           Row(

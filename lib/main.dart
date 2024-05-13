@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:calendario_flutter/pages/admin/events_page.dart';
 import 'package:calendario_flutter/pages/admin/home_page.dart';
 import 'package:calendario_flutter/pages/admin/login_page.dart';
@@ -38,10 +40,13 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      localizationsDelegates: const [GlobalMaterialLocalizations.delegate],
-      supportedLocales: const [
-        Locale('en', 'US'),
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
+      supportedLocales: const [Locale("es", "CO")],
+      locale: const Locale("es", "CO"),
       theme: ThemeData(
         bottomSheetTheme: BottomSheetThemeData(
           backgroundColor: Colors.grey.withOpacity(0.5),
@@ -52,13 +57,13 @@ class MainApp extends StatelessWidget {
       routes: {
         SplashPage.id: (context) => const SplashPage(),
         OnBoardingPage.id: (context) => const OnBoardingPage(),
-        LoginPage.id: (context) => LoginPage(),
-        SignUpScreen.id: (context) => SignUpScreen(),
+        LoginPage.id: (context) => const LoginPage(),
+        SignUpScreen.id: (context) => const SignUpScreen(),
         HomePage.id: (context) => const HomePage(),
         '/test': (context) => const TaskDetailView(),
         ForgotPasswordPage.id: (context) => ForgotPasswordPage(),
         AdminSplashPage.id: (context) => const AdminSplashPage(),
-        AdminLoginPage.id: (context) => AdminLoginPage(),
+        AdminLoginPage.id: (context) => const AdminLoginPage(),
         AdminHomePage.id: (context) => const AdminHomePage(),
         AdminProgramsPage.id: (context) => const AdminProgramsPage(),
         AdminProfessorsPage.id: (context) => const AdminProfessorsPage(),

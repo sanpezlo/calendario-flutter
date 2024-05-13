@@ -9,14 +9,19 @@ import 'package:calendario_flutter/pages/admin/home_page.dart';
 import 'package:calendario_flutter/services/firebase_auth_service.dart';
 import 'package:flutter/material.dart';
 
-class AdminLoginPage extends StatelessWidget {
+class AdminLoginPage extends StatefulWidget {
   static const String id = "/admin-login";
 
+  const AdminLoginPage({super.key});
+
+  @override
+  State<AdminLoginPage> createState() => _AdminLoginPageState();
+}
+
+class _AdminLoginPageState extends State<AdminLoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  AdminLoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {

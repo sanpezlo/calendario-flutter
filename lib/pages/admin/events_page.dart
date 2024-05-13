@@ -160,7 +160,14 @@ class _AdminEventsPageState extends State<AdminEventsPage> {
                         DataCell(Text(eventModel.description)),
                         DataCell(Text(DateFormat("dd/MM/yyyy h:mm a")
                             .format(eventModel.date))),
-                        DataCell(Text(eventModel.endTime.format(context))),
+                        DataCell(
+                          Text(
+                            DateFormat("h:mm a").format(
+                              DateTime(0, 0, 0, eventModel.endTime.hour,
+                                  eventModel.endTime.minute),
+                            ),
+                          ),
+                        ),
                         DataCell(Text(programs
                             .where((element) =>
                                 eventModel.programIds.contains(element.id))

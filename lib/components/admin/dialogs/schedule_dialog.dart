@@ -13,6 +13,7 @@ import 'package:calendario_flutter/models/subject_model.dart';
 import 'package:calendario_flutter/services/firebase_firestore_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 class ScheduleDialog extends StatefulWidget {
@@ -167,7 +168,17 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
           CustomTextField(
             hintText: "Hora de inicio",
             controller: TextEditingController(
-              text: startTimeController?.format(context),
+              text: startTimeController != null
+                  ? DateFormat("h:mm a").format(
+                      DateTime(
+                        0,
+                        0,
+                        0,
+                        startTimeController!.hour,
+                        startTimeController!.minute,
+                      ),
+                    )
+                  : null,
             ),
             enabled: !widget.isDelete,
             validator: (value) {
@@ -203,7 +214,17 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
           CustomTextField(
             hintText: "Hora de fin",
             controller: TextEditingController(
-              text: endTimeController?.format(context),
+              text: endTimeController != null
+                  ? DateFormat("h:mm a").format(
+                      DateTime(
+                        0,
+                        0,
+                        0,
+                        endTimeController!.hour,
+                        endTimeController!.minute,
+                      ),
+                    )
+                  : null,
             ),
             enabled: !widget.isDelete,
             validator: (value) {

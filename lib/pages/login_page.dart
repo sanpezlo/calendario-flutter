@@ -13,14 +13,19 @@ import 'package:calendario_flutter/pages/signup_page.dart';
 import 'package:calendario_flutter/services/firebase_auth_service.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   static const String id = "/login";
 
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-
-  LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
