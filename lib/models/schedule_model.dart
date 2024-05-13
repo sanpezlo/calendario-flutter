@@ -1,4 +1,7 @@
+import 'package:calendario_flutter/components/app_colors.dart';
+import 'package:calendario_flutter/models/subject_model.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 enum Day { monday, tuesday, wednesday, thursday, friday, saturday }
 
@@ -88,5 +91,64 @@ class ScheduleModel {
       },
       "day": day.name
     };
+  }
+}
+
+class ScheduleDataSource extends CalendarDataSource {
+  final List<SubjectModel> subjects;
+  Map<String, Color> mapColors = {};
+
+  ScheduleDataSource(
+      {required List<ScheduleModel> source, required this.subjects}) {
+    final now = DateTime.now();
+
+    appointments = source
+        .map((e) => Appointment(
+            subject: subjects
+                .firstWhere((element) => element.id == e.subjectId)
+                .name,
+            startTime:
+                DateTime(now.year, 1, 1, e.startTime.hour, e.startTime.minute),
+            endTime: DateTime(now.year, 1, 1, e.endTime.hour, e.endTime.minute),
+            color: getScheduleColor(e.subjectId),
+            recurrenceRule:
+                "FREQ=WEEKLY;INTERVAL=1;BYDAY=${e.day.name.toUpperCase().substring(0, 2)};COUNT=53"))
+        .toList();
+  }
+
+  Color getScheduleColor(String subjectId) {
+    if (mapColors.containsKey(subjectId)) {
+      return mapColors[subjectId]!;
+    }
+
+    final color = AppColor.colors[mapColors.length % AppColor.colors.length];
+    mapColors[subjectId] = color;
+
+    return color;
+  }
+
+  @override
+  DateTime getStartTime(int index) {
+    return appointments![index].from;
+  }
+
+  @override
+  DateTime getEndTime(int index) {
+    return appointments![index].to;
+  }
+
+  @override
+  String getSubject(int index) {
+    return appointments![index].eventName;
+  }
+
+  @override
+  Color getColor(int index) {
+    return appointments![index].background;
+  }
+
+  @override
+  String getRecurrenceRule(int index) {
+    return appointments![index].recurrenceRule;
   }
 }

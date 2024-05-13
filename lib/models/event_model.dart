@@ -1,4 +1,6 @@
+import 'package:calendario_flutter/components/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 class EventModel {
   final String id;
@@ -43,5 +45,52 @@ class EventModel {
       },
       "programIds": programIds,
     };
+  }
+}
+
+class EventDataSource extends CalendarDataSource {
+  int indexColor = 0;
+
+  EventDataSource({required List<EventModel> source}) {
+    appointments = source
+        .map((event) => Appointment(
+              startTime: event.date,
+              endTime: DateTime(
+                event.date.year,
+                event.date.month,
+                event.date.day,
+                event.endTime.hour,
+                event.endTime.minute,
+              ),
+              subject: event.title,
+              color: getEventColor(),
+            ))
+        .toList();
+  }
+
+  Color getEventColor() {
+    final color = AppColor.colors[indexColor];
+    indexColor = (indexColor + 1) % AppColor.colors.length;
+    return color;
+  }
+
+  @override
+  DateTime getStartTime(int index) {
+    return appointments![index].from;
+  }
+
+  @override
+  DateTime getEndTime(int index) {
+    return appointments![index].to;
+  }
+
+  @override
+  String getSubject(int index) {
+    return appointments![index].eventName;
+  }
+
+  @override
+  Color getColor(int index) {
+    return appointments![index].background;
   }
 }

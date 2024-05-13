@@ -3,99 +3,312 @@ import 'package:calendario_flutter/components/dialogs/error_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/loading_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/user_dialog.dart';
 import 'package:calendario_flutter/models/error_model.dart';
-import 'package:calendario_flutter/models/program_model.dart';
+import 'package:calendario_flutter/models/event_model.dart';
+import 'package:calendario_flutter/models/schedule_model.dart';
+import 'package:calendario_flutter/models/subject_model.dart';
 import 'package:calendario_flutter/models/user_model.dart';
 import 'package:calendario_flutter/services/firebase_auth_service.dart';
 import 'package:calendario_flutter/services/firebase_firestore_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   static const String id = "/home";
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  bool _isLoadingFuture = true;
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: Future.wait([
-          FirebaseAuthService().getUserModel(),
-          FirebaseFirestoreService().getPrograms(),
-        ]),
+        future: FirebaseAuthService().getUserModel(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Scaffold(
-              backgroundColor: AppColor.grey,
-              body: const LoadingDialog(),
+            _isLoadingFuture = true;
+            Future.delayed(
+              Duration.zero,
+              () => LoadingDialog.show(context: context),
             );
+
+            return Scaffold(backgroundColor: AppColor.background);
           }
 
           if (snapshot.hasError) {
-            return Scaffold(
-              backgroundColor: AppColor.grey,
-              body: ErrorDialog(
+            Future.delayed(
+              Duration.zero,
+              () => ErrorDialog.show(
+                context: context,
                 errorModel: ErrorModel(),
-                onPress: () {},
               ),
             );
+
+            return Scaffold(backgroundColor: AppColor.background);
           }
 
-          final UserModel userModel = snapshot.data![0] as UserModel;
-          final List<ProgramModel> programModels =
-              snapshot.data![1] as List<ProgramModel>;
-
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Calendario'),
-              actions: [
-                IconButton(
-                  onPressed: () {
-                    UserDialog.show(context: context, userModel: userModel);
-                  },
-                  icon: CircleAvatar(
-                    backgroundColor: AppColor.primary,
-                    foregroundColor: AppColor.white,
-                    child: Text(snapshot.data != null ? userModel.name[0] : ""),
-                  ),
-                )
-              ],
-            ),
-            drawer: Drawer(
-              child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  DrawerHeader(
-                    decoration: BoxDecoration(
-                      color: AppColor.primary,
-                    ),
-                    child: SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Image.asset(
-                          "assets/logo_blanco_unicesmag.png",
-                          scale: 1.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  ListTile(
-                    title: const Text('Eventos'),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  ListTile(
-                    title: const Text('Horarios'),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
+          if (!snapshot.hasData) {
+            Future.delayed(
+              Duration.zero,
+              () => ErrorDialog.show(
+                context: context,
+                errorModel: ErrorModel(
+                  message: "No se pudo obtener la información del usuario",
+                ),
               ),
-            ),
-            body: SfCalendar(
-              
+            );
+
+            return Scaffold(backgroundColor: AppColor.background);
+          }
+
+          if (_isLoadingFuture) {
+            _isLoadingFuture = false;
+            Future.delayed(Duration.zero, () => Navigator.pop(context));
+          }
+
+          return _Stream(userModel: snapshot.data!);
+        });
+  }
+}
+
+class _Stream extends StatefulWidget {
+  final UserModel userModel;
+  const _Stream({required this.userModel});
+
+  @override
+  State<_Stream> createState() => _StreamState();
+}
+
+class _StreamState extends State<_Stream> {
+  bool _isLoadingStream = true;
+
+  Stream<List<QuerySnapshot>> getStream() {
+    final subjectStream = FirebaseFirestoreService()
+        .getSubjectsByProgramIdStreamQuery(widget.userModel.programId);
+    final schedulesStream =
+        FirebaseFirestoreService().getSchedulesStreamQuery();
+    final eventsStream = FirebaseFirestoreService()
+        .getEventsByProgramIdStreamQuery(widget.userModel.programId);
+
+    return CombineLatestStream.list(
+        [subjectStream, schedulesStream, eventsStream]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: getStream(),
+      builder: (context, streamSnapshot) {
+        if (streamSnapshot.connectionState == ConnectionState.waiting) {
+          _isLoadingStream = true;
+          Future.delayed(
+            Duration.zero,
+            () => LoadingDialog.show(context: context),
+          );
+
+          return Scaffold(backgroundColor: AppColor.background);
+        }
+
+        if (streamSnapshot.hasError) {
+          Future.delayed(
+            Duration.zero,
+            () => ErrorDialog.show(
+              context: context,
+              errorModel: ErrorModel(
+                  message:
+                      "No se pudo obtener la información de los horarios y eventos"),
             ),
           );
-        });
+
+          return Scaffold(backgroundColor: AppColor.background);
+        }
+
+        if (!streamSnapshot.hasData) {
+          Future.delayed(
+            Duration.zero,
+            () => ErrorDialog.show(
+              context: context,
+              errorModel: ErrorModel(
+                  message:
+                      "No se pudo obtener la información de los horarios y eventos"),
+            ),
+          );
+
+          return Scaffold(backgroundColor: AppColor.background);
+        }
+
+        if (_isLoadingStream) {
+          _isLoadingStream = false;
+          Future.delayed(Duration.zero, () => Navigator.pop(context));
+        }
+
+        final subjects = streamSnapshot.data![0].docs
+            .map((e) => SubjectModel.fromJson(e.data() as Map<String, dynamic>))
+            .toList();
+
+        final schedules = streamSnapshot.data![1].docs
+            .map(
+                (e) => ScheduleModel.fromJson(e.data() as Map<String, dynamic>))
+            .where((element) =>
+                subjects.map((e) => e.id).toList().contains(element.subjectId))
+            .toList();
+
+        final events = streamSnapshot.data![2].docs
+            .map((e) => EventModel.fromJson(e.data() as Map<String, dynamic>))
+            .toList();
+
+        return _CustomScaffold(
+          userModel: widget.userModel,
+          subjects: subjects,
+          schedules: schedules,
+          events: events,
+        );
+      },
+    );
+  }
+}
+
+class _CustomScaffold extends StatefulWidget {
+  final UserModel userModel;
+  final List<SubjectModel> subjects;
+  final List<ScheduleModel> schedules;
+  final List<EventModel> events;
+  const _CustomScaffold(
+      {required this.userModel,
+      required this.subjects,
+      required this.schedules,
+      required this.events});
+
+  @override
+  State<_CustomScaffold> createState() => _CustomScaffoldState();
+}
+
+class _CustomScaffoldState extends State<_CustomScaffold> {
+  String _selected = "schedule";
+
+  final CalendarController _calendarController = CalendarController();
+
+  @override
+  void initState() {
+    super.initState();
+    _calendarController.view = CalendarView.week;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(_selected == "schedule" ? "Horarios" : "Eventos"),
+        actions: [
+          IconButton(
+            onPressed: () {
+              UserDialog.show(context: context, userModel: widget.userModel);
+            },
+            icon: CircleAvatar(
+              backgroundColor: AppColor.primary,
+              foregroundColor: AppColor.white,
+              child: Text(widget.userModel.name[0]),
+            ),
+          )
+        ],
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: AppColor.primary,
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Image.asset(
+                    "assets/logo_blanco_unicesmag.png",
+                    scale: 1.5,
+                  ),
+                ),
+              ),
+            ),
+            ListTile(
+              title: Text(
+                'Horarios',
+                style: TextStyle(
+                    color: _selected == "schedule"
+                        ? AppColor.secondary
+                        : AppColor.text),
+              ),
+              onTap: () {
+                setState(() {
+                  _selected = "schedule";
+                  _calendarController.view = CalendarView.week;
+                  _calendarController.displayDate = DateTime.now();
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Eventos',
+                style: TextStyle(
+                    color: _selected == "events"
+                        ? AppColor.secondary
+                        : AppColor.text),
+              ),
+              onTap: () {
+                setState(() {
+                  _selected = "events";
+                  _calendarController.view = CalendarView.month;
+                  _calendarController.displayDate = DateTime.now();
+                });
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+      ),
+      body: SfCalendar(
+        controller: _calendarController,
+        dataSource: _selected == "schedule"
+            ? ScheduleDataSource(
+                source: widget.schedules,
+                subjects: widget.subjects,
+              )
+            : EventDataSource(
+                source: widget.events,
+              ),
+        headerStyle: CalendarHeaderStyle(
+          backgroundColor: AppColor.alternative,
+          textStyle: TextStyle(color: AppColor.primary),
+        ),
+        todayHighlightColor: AppColor.secondary,
+        monthViewSettings: const MonthViewSettings(
+          showAgenda: true,
+          showTrailingAndLeadingDates: false,
+        ),
+        onTap: (calendarTapDetails) {
+          if (calendarTapDetails.appointments == null) return;
+        },
+        allowViewNavigation: true,
+        allowedViews: _selected == "schedule"
+            ? <CalendarView>[CalendarView.day, CalendarView.week]
+            : <CalendarView>[
+                CalendarView.day,
+                CalendarView.week,
+                CalendarView.month
+              ],
+        showTodayButton: true,
+        viewNavigationMode: _selected == "schedule"
+            ? _calendarController.view == CalendarView.day
+                ? ViewNavigationMode.snap
+                : ViewNavigationMode.none
+            : ViewNavigationMode.snap,
+      ),
+    );
   }
 }

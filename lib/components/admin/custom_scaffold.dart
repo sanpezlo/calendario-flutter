@@ -66,6 +66,7 @@ class _CustomScaffoldState extends State<CustomScaffold> {
       future: FirebaseAuthService().getUserModel(),
       builder: (context, futureSnapshot) {
         if (futureSnapshot.connectionState == ConnectionState.waiting) {
+          _isLoadingFuture = true;
           Future.delayed(
             Duration.zero,
             () => LoadingDialog.show(context: context),

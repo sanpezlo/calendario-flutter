@@ -97,7 +97,7 @@ class _AdminProfessorsPageState extends State<AdminProfessorsPage> {
                   size: ColumnSize.L,
                 ),
                 DataColumn2(
-                  label: Text('Semestres'),
+                  label: Text('Área'),
                   size: ColumnSize.S,
                   numeric: true,
                 ),

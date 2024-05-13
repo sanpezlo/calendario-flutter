@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:calendario_flutter/pages/admin/events_page.dart';
 import 'package:calendario_flutter/pages/admin/home_page.dart';
 import 'package:calendario_flutter/pages/admin/login_page.dart';
@@ -22,6 +20,7 @@ import 'package:flutter_neumorphic_plus/flutter_neumorphic.dart';
 import 'firebase_options.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +43,7 @@ class MainApp extends StatelessWidget {
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
+        SfGlobalLocalizations.delegate,
       ],
       supportedLocales: const [Locale("es", "CO")],
       locale: const Locale("es", "CO"),

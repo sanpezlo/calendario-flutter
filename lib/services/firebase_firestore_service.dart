@@ -130,6 +130,13 @@ class FirebaseFirestoreService {
     return FirebaseFirestore.instance.collection("Subject").snapshots();
   }
 
+  Stream<QuerySnapshot> getSubjectsByProgramIdStreamQuery(String programId) {
+    return FirebaseFirestore.instance
+        .collection("Subject")
+        .where("programId", isEqualTo: programId)
+        .snapshots();
+  }
+
   // Schedule
 
   Future<void> addSchedule(ScheduleModel schedule) {
@@ -190,5 +197,12 @@ class FirebaseFirestoreService {
 
   Stream<QuerySnapshot> getEventsStreamQuery() {
     return FirebaseFirestore.instance.collection("Event").snapshots();
+  }
+
+  Stream<QuerySnapshot> getEventsByProgramIdStreamQuery(String programId) {
+    return FirebaseFirestore.instance
+        .collection("Event")
+        .where("programIds", arrayContains: programId)
+        .snapshots();
   }
 }
