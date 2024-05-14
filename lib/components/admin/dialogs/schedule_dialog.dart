@@ -186,6 +186,18 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                 return "Por favor seleccione una hora de inicio";
               }
 
+              if (startTimeController != null &&
+                  startTimeController!
+                      .isBefore(const TimeOfDay(hour: 7, minute: 0))) {
+                return "La hora de inicio no puede ser antes de las 7:00 AM";
+              }
+
+              if (startTimeController != null &&
+                  startTimeController!
+                      .isAfter(const TimeOfDay(hour: 21, minute: 5))) {
+                return "La hora de inicio no puede ser después de las 9:05 PM";
+              }
+
               return null;
             },
             onChanged: (_) {
@@ -242,6 +254,18 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                   endTimeController != null &&
                   startTimeController == endTimeController) {
                 return "La hora de fin no puede ser igual a la hora de inicio";
+              }
+
+              if (endTimeController != null &&
+                  endTimeController!
+                      .isBefore(const TimeOfDay(hour: 7, minute: 50))) {
+                return "La hora de fin no puede ser antes de las 7:50 AM";
+              }
+
+              if (endTimeController != null &&
+                  endTimeController!
+                      .isAfter(const TimeOfDay(hour: 21, minute: 55))) {
+                return "La hora de fin no puede ser después de las 9:55 PM";
               }
 
               return null;

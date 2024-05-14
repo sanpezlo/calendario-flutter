@@ -12,5 +12,11 @@ class FirebaseMessagingService {
     if (kDebugMode) {
       print('FCM Token: $fcmToken');
     }
+
+    FirebaseMessaging.onBackgroundMessage(handleBackgroudMessage);
   }
+
+  Future<void> handleBackgroudMessage(RemoteMessage message) async {}
+
+  Future<String?> fcmToken() => _firebaseMessaging.getToken();
 }

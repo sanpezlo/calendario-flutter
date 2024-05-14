@@ -96,17 +96,27 @@ class ScheduleModel {
 
 class ScheduleDataSource extends CalendarDataSource {
   final List<SubjectModel> subjects;
+  final CalendarView calendarView;
   Map<String, Color> mapColors = {};
 
   ScheduleDataSource(
-      {required List<ScheduleModel> source, required this.subjects}) {
+      {required List<ScheduleModel> source,
+      required this.subjects,
+      required this.calendarView}) {
     final now = DateTime.now();
 
     appointments = source
         .map((e) => Appointment(
-            subject: subjects
-                .firstWhere((element) => element.id == e.subjectId)
-                .name,
+            subject: calendarView == CalendarView.workWeek
+                ? subjects
+                    .firstWhere((element) => element.id == e.subjectId)
+                    .name
+                    .split(" ")
+                    .map((e) => _take(e, 4))
+                    .join(" ")
+                : subjects
+                    .firstWhere((element) => element.id == e.subjectId)
+                    .name,
             startTime:
                 DateTime(now.year, 1, 1, e.startTime.hour, e.startTime.minute),
             endTime: DateTime(now.year, 1, 1, e.endTime.hour, e.endTime.minute),
@@ -114,6 +124,10 @@ class ScheduleDataSource extends CalendarDataSource {
             recurrenceRule:
                 "FREQ=WEEKLY;INTERVAL=1;BYDAY=${e.day.name.toUpperCase().substring(0, 2)};COUNT=53"))
         .toList();
+  }
+
+  String _take(String value, int length) {
+    return value.length <= length ? value : "${value.substring(0, length)}.";
   }
 
   Color getScheduleColor(String subjectId) {

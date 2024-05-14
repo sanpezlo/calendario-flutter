@@ -175,6 +175,28 @@ class _EventDialogState extends State<EventDialog> {
                 return "Por favor seleccione una fecha y hora";
               }
 
+              if (dateController == null) return null;
+
+              if (dateController!.isBefore(DateTime(
+                dateController!.year,
+                dateController!.month,
+                dateController!.day,
+                7,
+                0,
+              ))) {
+                return "La hora de inicio no puede ser antes de las 7:00 AM";
+              }
+
+              if (dateController!.isAfter(DateTime(
+                dateController!.year,
+                dateController!.month,
+                dateController!.day,
+                21,
+                5,
+              ))) {
+                return "La hora de inicio no puede ser después de las 9:05 PM";
+              }
+
               return null;
             },
             onChanged: (_) {
@@ -249,6 +271,18 @@ class _EventDialogState extends State<EventDialog> {
 
               if (endTimeController != null && startTime == endTimeController) {
                 return "La hora de fin no puede ser igual a la hora de inicio";
+              }
+
+              if (endTimeController != null &&
+                  endTimeController!
+                      .isBefore(const TimeOfDay(hour: 7, minute: 50))) {
+                return "La hora de fin no puede ser antes de las 7:50 AM";
+              }
+
+              if (endTimeController != null &&
+                  endTimeController!
+                      .isAfter(const TimeOfDay(hour: 21, minute: 55))) {
+                return "La hora de fin no puede ser después de las 9:55 PM";
               }
 
               return null;

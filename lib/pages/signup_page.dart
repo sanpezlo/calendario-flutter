@@ -308,6 +308,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   password: passwordController.text,
                   programId: programIdController!,
                   semester: int.parse(semesterController!),
+                  
                 )
                     .then(
                   (value) {

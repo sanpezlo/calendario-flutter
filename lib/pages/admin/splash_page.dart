@@ -1,6 +1,6 @@
 import 'package:calendario_flutter/components/app_colors.dart';
-import 'package:calendario_flutter/pages/admin/home_page.dart';
 import 'package:calendario_flutter/pages/admin/login_page.dart';
+import 'package:calendario_flutter/pages/admin/programs_page.dart';
 import 'package:calendario_flutter/services/firebase_auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,7 @@ class _AdminSplashPageState extends State<AdminSplashPage> {
       Future.delayed(
         const Duration(seconds: 0),
         () {
-          Navigator.pushReplacementNamed(context, AdminHomePage.id);
+          Navigator.pushReplacementNamed(context, AdminProgramsPage.id);
         },
       );
     } else {

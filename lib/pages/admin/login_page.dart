@@ -5,7 +5,7 @@ import 'package:calendario_flutter/components/dialogs/loading_dialog.dart';
 import 'package:calendario_flutter/components/text_fields/password_text_field.dart';
 import 'package:calendario_flutter/components/buttons/secondary_button.dart';
 import 'package:calendario_flutter/models/error_model.dart';
-import 'package:calendario_flutter/pages/admin/home_page.dart';
+import 'package:calendario_flutter/pages/admin/programs_page.dart';
 import 'package:calendario_flutter/services/firebase_auth_service.dart';
 import 'package:flutter/material.dart';
 
@@ -118,8 +118,8 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
                           (userModel) {
                             Navigator.pop(context);
                             if (userModel != null && userModel.isAdmin) {
-                              Navigator.pushNamedAndRemoveUntil(
-                                  context, AdminHomePage.id, (route) => false);
+                              Navigator.pushNamedAndRemoveUntil(context,
+                                  AdminProgramsPage.id, (route) => false);
                             } else {
                               FirebaseAuthService().signOut();
                               ErrorDialog.show(

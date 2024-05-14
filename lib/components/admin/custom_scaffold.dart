@@ -5,7 +5,6 @@ import 'package:calendario_flutter/components/dialogs/user_dialog.dart';
 import 'package:calendario_flutter/models/error_model.dart';
 import 'package:calendario_flutter/models/navigation_model.dart';
 import 'package:calendario_flutter/pages/admin/events_page.dart';
-import 'package:calendario_flutter/pages/admin/home_page.dart';
 import 'package:calendario_flutter/pages/admin/login_page.dart';
 import 'package:calendario_flutter/pages/admin/professors_page.dart';
 import 'package:calendario_flutter/pages/admin/programs_page.dart';
@@ -143,13 +142,6 @@ class _CustomScaffoldState extends State<CustomScaffold> {
                       ),
                     ),
                   ),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.home),
-                  title: const Text('Inicio'),
-                  onTap: () {
-                    Navigator.pushReplacementNamed(context, AdminHomePage.id);
-                  },
                 ),
                 ...CustomScaffold.adminNavigations.map(
                   (card) => ListTile(

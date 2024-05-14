@@ -4,6 +4,7 @@ class UserModel {
   String email;
   String programId;
   int semester;
+  String token;
   bool isAdmin;
 
   UserModel(
@@ -12,6 +13,7 @@ class UserModel {
       required this.email,
       required this.programId,
       required this.semester,
+      this.token = '',
       this.isAdmin = false});
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
@@ -20,6 +22,7 @@ class UserModel {
         email: json['email'],
         programId: json['programId'],
         semester: json['semester'],
+        token: json['token'],
         isAdmin: json['isAdmin'],
       );
 
@@ -29,6 +32,7 @@ class UserModel {
         'email': email,
         'programId': programId,
         'semester': semester,
+        'token': token,
         'isAdmin': isAdmin,
       };
 }

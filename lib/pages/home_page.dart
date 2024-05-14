@@ -196,7 +196,7 @@ class _CustomScaffoldState extends State<_CustomScaffold> {
   @override
   void initState() {
     super.initState();
-    _calendarController.view = CalendarView.week;
+    _calendarController.view = CalendarView.workWeek;
   }
 
   @override
@@ -246,7 +246,7 @@ class _CustomScaffoldState extends State<_CustomScaffold> {
               onTap: () {
                 setState(() {
                   _selected = "schedule";
-                  _calendarController.view = CalendarView.week;
+                  _calendarController.view = CalendarView.workWeek;
                   _calendarController.displayDate = DateTime.now();
                 });
                 Navigator.pop(context);
@@ -278,10 +278,17 @@ class _CustomScaffoldState extends State<_CustomScaffold> {
             ? ScheduleDataSource(
                 source: widget.schedules,
                 subjects: widget.subjects,
+                calendarView: _calendarController.view!,
               )
             : EventDataSource(
                 source: widget.events,
               ),
+        timeSlotViewSettings: const TimeSlotViewSettings(
+          startHour: 7,
+          endHour: 22,
+          nonWorkingDays: <int>[DateTime.sunday],
+          // numberOfDaysInView: 3,
+        ),
         headerStyle: CalendarHeaderStyle(
           backgroundColor: AppColor.alternative,
           textStyle: TextStyle(color: AppColor.primary),
@@ -296,17 +303,17 @@ class _CustomScaffoldState extends State<_CustomScaffold> {
         },
         allowViewNavigation: true,
         allowedViews: _selected == "schedule"
-            ? <CalendarView>[CalendarView.day, CalendarView.week]
+            ? <CalendarView>[CalendarView.day, CalendarView.workWeek]
             : <CalendarView>[
                 CalendarView.day,
-                CalendarView.week,
+                CalendarView.workWeek,
                 CalendarView.month
               ],
         showTodayButton: true,
         viewNavigationMode: _selected == "schedule"
             ? _calendarController.view == CalendarView.day
                 ? ViewNavigationMode.snap
-                : ViewNavigationMode.none
+                : ViewNavigationMode.snap
             : ViewNavigationMode.snap,
       ),
     );

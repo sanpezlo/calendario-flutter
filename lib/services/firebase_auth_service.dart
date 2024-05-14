@@ -1,8 +1,9 @@
 import 'package:calendario_flutter/models/error_model.dart';
 import 'package:calendario_flutter/models/user_model.dart';
 import 'package:calendario_flutter/services/firebase_firestore_service.dart';
+import 'package:calendario_flutter/services/firebase_messaging_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
 
 class FirebaseAuthService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -26,13 +27,16 @@ class FirebaseAuthService {
       UserCredential userCredential = await _firebaseAuth
           .createUserWithEmailAndPassword(email: email, password: password);
 
+      String? token = await FirebaseMessagingService().fcmToken();
+
       if (userCredential.user != null) {
         FirebaseFirestoreService().addUser(UserModel(
             id: userCredential.user!.uid,
             name: name,
             email: email,
             programId: programId,
-            semester: semester));
+            semester: semester,
+            token: token ?? ""));
       }
 
       return userCredential.user;
@@ -72,6 +76,15 @@ class FirebaseAuthService {
     try {
       UserCredential userCredential = await _firebaseAuth
           .signInWithEmailAndPassword(email: email, password: password);
+
+      if (kIsWeb) return userCredential.user;
+
+      String? token = await FirebaseMessagingService().fcmToken();
+
+      if (userCredential.user != null) {
+        FirebaseFirestoreService()
+            .updateUserToken(userCredential.user!.uid, token ?? "");
+      }
 
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
