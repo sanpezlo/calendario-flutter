@@ -28,13 +28,6 @@ class FirebaseFirestoreService {
     }
   }
 
-  Future<void> updateUserToken(String id, String token) {
-    return FirebaseFirestore.instance
-        .collection("User")
-        .doc(id)
-        .update({"token": token});
-  }
-
   // Program
 
   Future<void> addProgram(ProgramModel programModel) {

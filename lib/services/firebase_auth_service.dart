@@ -97,13 +97,6 @@ class FirebaseAuthService {
           programTopic: userModel.programId,
           semesterTopic: "${userModel.programId}_${userModel.semester}");
 
-      String? token = await FirebaseMessagingService().fcmToken();
-
-      if (userCredential.user != null) {
-        FirebaseFirestoreService()
-            .updateUserToken(userCredential.user!.uid, token ?? "");
-      }
-
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
