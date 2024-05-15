@@ -60,6 +60,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
   TimeOfDay? startTimeController;
   TimeOfDay? endTimeController;
   String? dayController;
+  final classroomController = TextEditingController();
 
   @override
   void initState() {
@@ -70,6 +71,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
       startTimeController = widget.scheduleModel!.startTime;
       endTimeController = widget.scheduleModel!.endTime;
       dayController = widget.scheduleModel!.day.name;
+      classroomController.text = widget.scheduleModel!.classroom;
     }
   }
 
@@ -332,6 +334,25 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
           const SizedBox(
             height: 16,
           ),
+          CustomTextField(
+            hintText: "Aula",
+            enabled: !widget.isDelete,
+            controller: classroomController,
+            validator: (name) {
+              if (name == null || name.isEmpty) {
+                return "Por favor ingrese el aula";
+              }
+
+              if (name.length < 3) {
+                return "El aula debe tener al menos 3 caracteres";
+              }
+
+              return null;
+            },
+          ),
+          const SizedBox(
+            height: 16,
+          ),
           widget.isDelete
               ? SecondaryButton(
                   onPressed: () async {
@@ -377,6 +398,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                             endTime: endTimeController!,
                             day: Day.values.firstWhere(
                                 (element) => element.name == dayController),
+                            classroom: classroomController.text,
                           ),
                         )
                             .then(
@@ -392,7 +414,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                               title:
                                   "Horario Actualizado: ${subjectModel.name}",
                               body:
-                                  "El horario de la materia ${subjectModel.name} ha sido actualizado a las ${DateFormat("h:mm a").format(DateTime(0, 0, 0, startTimeController!.hour, startTimeController!.minute))} - ${DateFormat("h:mm a").format(DateTime(0, 0, 0, endTimeController!.hour, endTimeController!.minute))} el día ${Day.values.firstWhere((element) => element.name == dayController).format()}",
+                                  "El horario de la materia ${subjectModel.name} ha sido actualizado a las ${DateFormat("h:mm a").format(DateTime(0, 0, 0, startTimeController!.hour, startTimeController!.minute))} - ${DateFormat("h:mm a").format(DateTime(0, 0, 0, endTimeController!.hour, endTimeController!.minute))} el día ${Day.values.firstWhere((element) => element.name == dayController).format()} en el aula ${classroomController.text}",
                             );
 
                             Navigator.pop(context);
@@ -410,6 +432,7 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                             endTime: endTimeController!,
                             day: Day.values.firstWhere(
                                 (element) => element.name == dayController),
+                            classroom: classroomController.text,
                           ),
                         )
                             .then(

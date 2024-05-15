@@ -156,6 +156,10 @@ class _AdminSchedulesPageState extends State<AdminSchedulesPage> {
                     size: ColumnSize.M,
                   ),
                   DataColumn2(
+                    label: Text('Aula'),
+                    size: ColumnSize.M,
+                  ),
+                  DataColumn2(
                     label: Text('Acciones'),
                     size: ColumnSize.S,
                   ),
@@ -188,6 +192,7 @@ class _AdminSchedulesPageState extends State<AdminSchedulesPage> {
                           ),
                         ),
                         DataCell(Text(scheduleModel.day.format())),
+                        DataCell(Text(scheduleModel.classroom)),
                         DataCell(
                           Row(
                             children: [

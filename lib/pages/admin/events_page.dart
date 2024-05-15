@@ -36,7 +36,7 @@ class _AdminEventsPageState extends State<AdminEventsPage> {
   @override
   Widget build(BuildContext context) {
     return CustomScaffold(
-      textAppBar: "Horarios",
+      textAppBar: "Eventos",
       body: StreamBuilder(
           stream: getStream(),
           builder: (context, streamSnapshot) {

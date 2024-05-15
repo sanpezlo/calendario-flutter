@@ -52,6 +52,7 @@ class ScheduleModel {
   final TimeOfDay startTime;
   final TimeOfDay endTime;
   final Day day;
+  final String classroom;
 
   ScheduleModel({
     required this.id,
@@ -59,6 +60,7 @@ class ScheduleModel {
     required this.startTime,
     required this.endTime,
     required this.day,
+    required this.classroom,
   });
 
   factory ScheduleModel.fromJson(Map<String, dynamic> json) {
@@ -74,6 +76,7 @@ class ScheduleModel {
         minute: json["endTime"]["minute"],
       ),
       day: Day.values.firstWhere((element) => element.name == json["day"]),
+      classroom: json["classroom"],
     );
   }
 
@@ -89,7 +92,8 @@ class ScheduleModel {
         "hour": endTime.hour,
         "minute": endTime.minute,
       },
-      "day": day.name
+      "day": day.name,
+      "classroom": classroom,
     };
   }
 }

@@ -399,7 +399,7 @@ class _EventDialogState extends State<EventDialog> {
                                   title:
                                       "Evento actualizado: ${titleController.text}",
                                   body:
-                                      "Se ha actualizado un evento en tu programa");
+                                      "Se ha actualizado el evento ${titleController.text} el ${DateFormat("dd/MM/yyyy h:mm a").format(dateController!)}");
                             }
 
                             Navigator.pop(context);
@@ -427,7 +427,7 @@ class _EventDialogState extends State<EventDialog> {
                                   title:
                                       "Nuevo evento: ${titleController.text}",
                                   body:
-                                      "Se ha creado un nuevo evento en tu programa");
+                                      "Se ha creado un nuevo evento ${titleController.text} el ${DateFormat("dd/MM/yyyy h:mm a").format(dateController!)}");
                             }
 
                             Navigator.pop(context);
