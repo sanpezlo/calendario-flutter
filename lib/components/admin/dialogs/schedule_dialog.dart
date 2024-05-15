@@ -11,6 +11,7 @@ import 'package:calendario_flutter/models/program_model.dart';
 import 'package:calendario_flutter/models/schedule_model.dart';
 import 'package:calendario_flutter/models/subject_model.dart';
 import 'package:calendario_flutter/services/firebase_firestore_service.dart';
+import 'package:calendario_flutter/services/firebase_messaging_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -380,6 +381,20 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                         )
                             .then(
                           (value) {
+                            final SubjectModel subjectModel = widget.subjects
+                                .where((element) =>
+                                    element.id == subjectIdController)
+                                .firstOrNull!;
+
+                            FirebaseMessagingService().sendNotification(
+                              topic:
+                                  "${subjectModel.programId}_${subjectModel.semester}",
+                              title:
+                                  "Horario Actualizado: ${subjectModel.name}",
+                              body:
+                                  "El horario de la materia ${subjectModel.name} ha sido actualizado a las ${DateFormat("h:mm a").format(DateTime(0, 0, 0, startTimeController!.hour, startTimeController!.minute))} - ${DateFormat("h:mm a").format(DateTime(0, 0, 0, endTimeController!.hour, endTimeController!.minute))} el día ${Day.values.firstWhere((element) => element.name == dayController).format()}",
+                            );
+
                             Navigator.pop(context);
                             _formKey.currentState!.reset();
                             Navigator.pop(context);

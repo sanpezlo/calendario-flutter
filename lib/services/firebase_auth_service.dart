@@ -30,13 +30,22 @@ class FirebaseAuthService {
       String? token = await FirebaseMessagingService().fcmToken();
 
       if (userCredential.user != null) {
-        FirebaseFirestoreService().addUser(UserModel(
+        await FirebaseFirestoreService().addUser(UserModel(
             id: userCredential.user!.uid,
             name: name,
             email: email,
             programId: programId,
             semester: semester,
             token: token ?? ""));
+
+        final userModel =
+            await FirebaseFirestoreService().getUser(userCredential.user!.uid);
+
+        if (userModel == null) return userCredential.user;
+
+        FirebaseMessagingService().subscribeProgramTopic(
+            programTopic: userModel.programId,
+            semesterTopic: "${userModel.programId}_${userModel.semester}");
       }
 
       return userCredential.user;
@@ -78,6 +87,15 @@ class FirebaseAuthService {
           .signInWithEmailAndPassword(email: email, password: password);
 
       if (kIsWeb) return userCredential.user;
+
+      final userModel =
+          await FirebaseFirestoreService().getUser(userCredential.user!.uid);
+
+      if (userModel == null) return userCredential.user;
+
+      FirebaseMessagingService().subscribeProgramTopic(
+          programTopic: userModel.programId,
+          semesterTopic: "${userModel.programId}_${userModel.semester}");
 
       String? token = await FirebaseMessagingService().fcmToken();
 
@@ -127,6 +145,7 @@ class FirebaseAuthService {
 
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
+    await FirebaseMessagingService().unsubscribePrgoramTopic();
   }
 
   Future<void> sendPasswordResetEmail({required String email}) async {

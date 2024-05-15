@@ -12,6 +12,7 @@ import 'package:calendario_flutter/models/event_model.dart';
 import 'package:calendario_flutter/models/program_model.dart';
 import 'package:calendario_flutter/models/schedule_model.dart';
 import 'package:calendario_flutter/services/firebase_firestore_service.dart';
+import 'package:calendario_flutter/services/firebase_messaging_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
@@ -392,6 +393,15 @@ class _EventDialogState extends State<EventDialog> {
                         )
                             .then(
                           (value) {
+                            for (String programId in programIdsController) {
+                              FirebaseMessagingService().sendNotification(
+                                  topic: programId,
+                                  title:
+                                      "Evento actualizado: ${titleController.text}",
+                                  body:
+                                      "Se ha actualizado un evento en tu programa");
+                            }
+
                             Navigator.pop(context);
                             _formKey.currentState!.reset();
                             Navigator.pop(context);
@@ -411,6 +421,15 @@ class _EventDialogState extends State<EventDialog> {
                         )
                             .then(
                           (value) {
+                            for (String programId in programIdsController) {
+                              FirebaseMessagingService().sendNotification(
+                                  topic: programId,
+                                  title:
+                                      "Nuevo evento: ${titleController.text}",
+                                  body:
+                                      "Se ha creado un nuevo evento en tu programa");
+                            }
+
                             Navigator.pop(context);
                             _formKey.currentState!.reset();
                             Navigator.pop(context);
