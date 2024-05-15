@@ -47,6 +47,11 @@ class CustomMultiSelectField extends StatelessWidget {
       searchHint: searchHint,
       buttonText: Text(
         buttonText,
+        style: const TextStyle(
+          fontFamily: 'Inter',
+          fontSize: 14,
+          fontWeight: FontWeight.w400,
+        ),
       ),
       items: items,
       chipDisplay: MultiSelectChipDisplay(

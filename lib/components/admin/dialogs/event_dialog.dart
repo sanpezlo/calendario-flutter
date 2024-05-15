@@ -313,34 +313,47 @@ class _EventDialogState extends State<EventDialog> {
           const SizedBox(
             height: 16,
           ),
-          CustomMultiSelectField(
-            items: widget.programs
-                .map(
-                  (program) =>
-                      MultiSelectItem<String>(program.id, program.name),
+          widget.isDelete
+              ? CustomTextField(
+                  hintText: "Programas",
+                  controller: TextEditingController(
+                    text: programIdsController.isEmpty
+                        ? "No hay programas seleccionados"
+                        : programIdsController.length == 1
+                            ? "1 programa seleccionado"
+                            : "${programIdsController.length} programas seleccionados",
+                  ),
+                  enabled: false,
                 )
-                .toList(),
-            onConfirm: (values) {
-              setState(() {
-                programIdsController = values.map((e) => e.toString()).toList();
-              });
-            },
-            title: "Programas",
-            buttonText: programIdsController.isEmpty
-                ? "Seleccione uno o más programas"
-                : programIdsController.length == 1
-                    ? "1 programa seleccionado"
-                    : "${programIdsController.length} programas seleccionados",
-            searchHint: "Buscar programa",
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return "Por favor seleccione al menos un programa";
-              }
+              : CustomMultiSelectField(
+                  items: widget.programs
+                      .map(
+                        (program) =>
+                            MultiSelectItem<String>(program.id, program.name),
+                      )
+                      .toList(),
+                  onConfirm: (values) {
+                    setState(() {
+                      programIdsController =
+                          values.map((e) => e.toString()).toList();
+                    });
+                  },
+                  title: "Programas",
+                  buttonText: programIdsController.isEmpty
+                      ? "Seleccione uno o más programas"
+                      : programIdsController.length == 1
+                          ? "1 programa seleccionado"
+                          : "${programIdsController.length} programas seleccionados",
+                  searchHint: "Buscar programa",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Por favor seleccione al menos un programa";
+                    }
 
-              return null;
-            },
-            initialValue: programIdsController,
-          ),
+                    return null;
+                  },
+                  initialValue: programIdsController,
+                ),
           const SizedBox(
             height: 16,
           ),

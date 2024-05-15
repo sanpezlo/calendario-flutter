@@ -56,8 +56,10 @@ class FirebaseFirestoreService {
   }
 
   Future<List<ProgramModel>> getPrograms() async {
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection("Program").get();
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection("Program")
+        .orderBy("name")
+        .get();
 
     return querySnapshot.docs
         .map((e) => ProgramModel.fromJson(e.data() as Map<String, dynamic>))
@@ -65,14 +67,20 @@ class FirebaseFirestoreService {
   }
 
   Stream<List<ProgramModel>> getProgramsStream() {
-    return FirebaseFirestore.instance.collection("Program").snapshots().map(
-        (querySnapshot) => querySnapshot.docs
+    return FirebaseFirestore.instance
+        .collection("Program")
+        .orderBy("name")
+        .snapshots()
+        .map((querySnapshot) => querySnapshot.docs
             .map((e) => ProgramModel.fromJson(e.data()))
             .toList());
   }
 
   Stream<QuerySnapshot> getProgramsStreamQuery() {
-    return FirebaseFirestore.instance.collection("Program").snapshots();
+    return FirebaseFirestore.instance
+        .collection("Program")
+        .orderBy("name")
+        .snapshots();
   }
 
   // Professor
@@ -96,14 +104,20 @@ class FirebaseFirestoreService {
   }
 
   Stream<List<ProfessorModel>> getProfessorsStream() {
-    return FirebaseFirestore.instance.collection("Professor").snapshots().map(
-        (querySnapshot) => querySnapshot.docs
+    return FirebaseFirestore.instance
+        .collection("Professor")
+        .orderBy("area")
+        .snapshots()
+        .map((querySnapshot) => querySnapshot.docs
             .map((e) => ProfessorModel.fromJson(e.data()))
             .toList());
   }
 
   Stream<QuerySnapshot> getProfessorsStreamQuery() {
-    return FirebaseFirestore.instance.collection("Professor").snapshots();
+    return FirebaseFirestore.instance
+        .collection("Professor")
+        .orderBy("area")
+        .snapshots();
   }
 
   // Subject
@@ -127,14 +141,22 @@ class FirebaseFirestoreService {
   }
 
   Stream<List<SubjectModel>> getSubjectsStream() {
-    return FirebaseFirestore.instance.collection("Subject").snapshots().map(
-        (querySnapshot) => querySnapshot.docs
+    return FirebaseFirestore.instance
+        .collection("Subject")
+        .orderBy("programId")
+        .orderBy("semester")
+        .snapshots()
+        .map((querySnapshot) => querySnapshot.docs
             .map((e) => SubjectModel.fromJson(e.data()))
             .toList());
   }
 
   Stream<QuerySnapshot> getSubjectsStreamQuery() {
-    return FirebaseFirestore.instance.collection("Subject").snapshots();
+    return FirebaseFirestore.instance
+        .collection("Subject")
+        .orderBy("programId")
+        .orderBy("semester")
+        .snapshots();
   }
 
   Stream<QuerySnapshot> getSubjectsByProgramIdStreamQuery(String programId) {
@@ -165,14 +187,20 @@ class FirebaseFirestoreService {
   }
 
   Stream<List<ScheduleModel>> getSchedulesStream() {
-    return FirebaseFirestore.instance.collection("Schedule").snapshots().map(
-        (querySnapshot) => querySnapshot.docs
+    return FirebaseFirestore.instance
+        .collection("Schedule")
+        .orderBy("subjectId")
+        .snapshots()
+        .map((querySnapshot) => querySnapshot.docs
             .map((e) => ScheduleModel.fromJson(e.data()))
             .toList());
   }
 
   Stream<QuerySnapshot> getSchedulesStreamQuery() {
-    return FirebaseFirestore.instance.collection("Schedule").snapshots();
+    return FirebaseFirestore.instance
+        .collection("Schedule")
+        .orderBy("subjectId")
+        .snapshots();
   }
 
   // Event
@@ -196,14 +224,20 @@ class FirebaseFirestoreService {
   }
 
   Stream<List<EventModel>> getEventsStream() {
-    return FirebaseFirestore.instance.collection("Event").snapshots().map(
-        (querySnapshot) => querySnapshot.docs
+    return FirebaseFirestore.instance
+        .collection("Event")
+        .orderBy("date")
+        .snapshots()
+        .map((querySnapshot) => querySnapshot.docs
             .map((e) => EventModel.fromJson(e.data()))
             .toList());
   }
 
   Stream<QuerySnapshot> getEventsStreamQuery() {
-    return FirebaseFirestore.instance.collection("Event").snapshots();
+    return FirebaseFirestore.instance
+        .collection("Event")
+        .orderBy("date")
+        .snapshots();
   }
 
   Stream<QuerySnapshot> getEventsByProgramIdStreamQuery(String programId) {

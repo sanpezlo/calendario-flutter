@@ -4,6 +4,8 @@ import 'package:calendario_flutter/components/admin/dialogs/professor_dialog.dar
 import 'package:calendario_flutter/components/app_colors.dart';
 import 'package:calendario_flutter/components/dialogs/error_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/loading_dialog.dart';
+import 'package:calendario_flutter/components/text_fields/custom_text_field.dart';
+
 import 'package:calendario_flutter/models/error_model.dart';
 import 'package:calendario_flutter/models/professor_model.dart';
 import 'package:calendario_flutter/services/firebase_firestore_service.dart';
@@ -90,58 +92,9 @@ class _AdminProfessorsPageState extends State<AdminProfessorsPage> {
               );
             }
 
-            return CustomDataTable(
-              columns: const [
-                DataColumn2(
-                  label: Text('Nombre'),
-                  size: ColumnSize.L,
-                ),
-                DataColumn2(
-                  label: Text('Área'),
-                  size: ColumnSize.S,
-                  numeric: true,
-                ),
-                DataColumn2(
-                  label: Text('Acciones'),
-                  size: ColumnSize.S,
-                ),
-              ],
-              rows: [
-                for (ProfessorModel professorModel in streamSnapshot.data!)
-                  DataRow(
-                    cells: [
-                      DataCell(Text(professorModel.name)),
-                      DataCell(Text(professorModel.area)),
-                      DataCell(
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.edit, color: AppColor.secondary),
-                              onPressed: () {
-                                ProfessorDialog.show(
-                                  context: context,
-                                  professorModel: professorModel,
-                                );
-                              },
-                            ),
-                            IconButton(
-                              icon:
-                                  Icon(Icons.delete, color: AppColor.secondary),
-                              onPressed: () {
-                                ProfessorDialog.show(
-                                  context: context,
-                                  professorModel: professorModel,
-                                  isDelete: true,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
-            );
+            return _FilterTable(
+                key: ValueKey(streamSnapshot.data!),
+                professors: streamSnapshot.data!);
           }),
       floatingActionButton: FloatingActionButton(
         shape: RoundedRectangleBorder(
@@ -153,6 +106,151 @@ class _AdminProfessorsPageState extends State<AdminProfessorsPage> {
           ProfessorDialog.show(context: context);
         },
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class _FilterTable extends StatefulWidget {
+  final List<ProfessorModel> professors;
+
+  const _FilterTable({required this.professors, ValueKey? key})
+      : super(key: key);
+
+  @override
+  State<_FilterTable> createState() => _FilterTableState();
+}
+
+class _FilterTableState extends State<_FilterTable> {
+  final nameController = TextEditingController();
+  final areaController = TextEditingController();
+
+  List<ProfessorModel> professorsFiltered = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    professorsFiltered = widget.professors;
+  }
+
+  void _filter() {
+    setState(() {
+      professorsFiltered = widget.professors.where((professor) {
+        final name = professor.name.toLowerCase();
+        final area = professor.area.toLowerCase();
+        final nameFilter = nameController.text.toLowerCase();
+        final areaFilter = areaController.text.toLowerCase();
+
+        return name.contains(nameFilter) && area.contains(areaFilter);
+      }).toList();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppColor.secondary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.search, color: AppColor.white),
+                  const SizedBox(width: 4),
+                  Text(
+                    "Buscar",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Inter',
+                      fontWeight: FontWeight.w700,
+                      color: AppColor.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              flex: 3,
+              child: CustomTextField(
+                hintText: "Nombre",
+                controller: nameController,
+                onChanged: (value) {
+                  _filter();
+                },
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              flex: 2,
+              child: CustomTextField(
+                hintText: "Área",
+                controller: areaController,
+                onChanged: (value) {
+                  _filter();
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: CustomDataTable(
+        columns: const [
+          DataColumn2(
+            label: Text('Nombre'),
+            size: ColumnSize.L,
+          ),
+          DataColumn2(
+            label: Text('Área'),
+            size: ColumnSize.S,
+            numeric: true,
+          ),
+          DataColumn2(
+            label: Text('Acciones'),
+            size: ColumnSize.S,
+          ),
+        ],
+        rows: [
+          for (ProfessorModel professorModel in professorsFiltered)
+            DataRow(
+              cells: [
+                DataCell(Text(professorModel.name)),
+                DataCell(Text(professorModel.area)),
+                DataCell(
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, color: AppColor.secondary),
+                        onPressed: () {
+                          ProfessorDialog.show(
+                            context: context,
+                            professorModel: professorModel,
+                          );
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: AppColor.secondary),
+                        onPressed: () {
+                          ProfessorDialog.show(
+                            context: context,
+                            professorModel: professorModel,
+                            isDelete: true,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+        ],
       ),
     );
   }
