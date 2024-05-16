@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 
 class CustomDialog extends StatelessWidget {
   final String title;
-  final String body;
+  final String? body;
+  final Widget? content;
   final List<Widget>? actions;
 
   const CustomDialog(
-      {super.key, required this.title, required this.body, this.actions});
+      {super.key, required this.title, this.body, this.content, this.actions});
 
   @override
   Widget build(BuildContext context) {
@@ -43,12 +44,13 @@ class CustomDialog extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Text(
-            body,
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-          ),
+          content ??
+              Text(
+                body!,
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+              ),
           const SizedBox(height: 16),
           actions == null
               ? PrimaryButton(

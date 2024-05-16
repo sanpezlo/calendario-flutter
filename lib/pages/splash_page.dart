@@ -77,7 +77,7 @@ class _SplashPageState extends State<SplashPage> {
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12.0),
                   child: Text(
-                    "Calendario académico",
+                    "UniTime",
                     style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
                   ),
                 ),
