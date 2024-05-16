@@ -14,12 +14,12 @@ class DividerRow extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            'or',
+            'Mas información',
             style: TextStyle(
               fontSize: 14,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w400,
-              color: AppColor.kGreyColor,
+              color: AppColor.grey,
             ),
           ),
         ),

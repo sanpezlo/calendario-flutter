@@ -1,9 +1,12 @@
 import 'package:calendario_flutter/components/app_colors.dart';
 import 'package:calendario_flutter/components/dialogs/error_dialog.dart';
+import 'package:calendario_flutter/components/dialogs/event_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/loading_dialog.dart';
+import 'package:calendario_flutter/components/dialogs/schedule_dialog.dart';
 import 'package:calendario_flutter/components/dialogs/user_dialog.dart';
 import 'package:calendario_flutter/models/error_model.dart';
 import 'package:calendario_flutter/models/event_model.dart';
+import 'package:calendario_flutter/models/professor_model.dart';
 import 'package:calendario_flutter/models/schedule_model.dart';
 import 'package:calendario_flutter/models/subject_model.dart';
 import 'package:calendario_flutter/models/user_model.dart';
@@ -94,9 +97,11 @@ class _StreamState extends State<_Stream> {
         FirebaseFirestoreService().getSchedulesStreamQuery();
     final eventsStream = FirebaseFirestoreService()
         .getEventsByProgramIdStreamQuery(widget.userModel.programId);
+    final professorsStream =
+        FirebaseFirestoreService().getProfessorsStreamQuery();
 
     return CombineLatestStream.list(
-        [subjectStream, schedulesStream, eventsStream]);
+        [subjectStream, schedulesStream, eventsStream, professorsStream]);
   }
 
   @override
@@ -162,11 +167,18 @@ class _StreamState extends State<_Stream> {
             .map((e) => EventModel.fromJson(e.data() as Map<String, dynamic>))
             .toList();
 
+        final professors = streamSnapshot.data![3].docs
+            .map((e) =>
+                ProfessorModel.fromJson(e.data() as Map<String, dynamic>))
+            .toList();
+
         return _CustomScaffold(
           userModel: widget.userModel,
-          subjects: subjects,
           schedules: schedules,
+          subjects: subjects,
+          professors: professors,
           events: events,
+          key: ValueKey(schedules.length + events.length),
         );
       },
     );
@@ -175,14 +187,19 @@ class _StreamState extends State<_Stream> {
 
 class _CustomScaffold extends StatefulWidget {
   final UserModel userModel;
-  final List<SubjectModel> subjects;
   final List<ScheduleModel> schedules;
+  final List<SubjectModel> subjects;
+  final List<ProfessorModel> professors;
   final List<EventModel> events;
+
   const _CustomScaffold(
       {required this.userModel,
-      required this.subjects,
       required this.schedules,
-      required this.events});
+      required this.subjects,
+      required this.professors,
+      required this.events,
+      ValueKey? key})
+      : super(key: key);
 
   @override
   State<_CustomScaffold> createState() => _CustomScaffoldState();
@@ -287,7 +304,6 @@ class _CustomScaffoldState extends State<_CustomScaffold> {
           startHour: 7,
           endHour: 22,
           nonWorkingDays: <int>[DateTime.sunday],
-          // numberOfDaysInView: 3,
         ),
         headerStyle: CalendarHeaderStyle(
           backgroundColor: AppColor.alternative,
@@ -300,6 +316,46 @@ class _CustomScaffoldState extends State<_CustomScaffold> {
         ),
         onTap: (calendarTapDetails) {
           if (calendarTapDetails.appointments == null) return;
+
+          if (calendarTapDetails.appointments!.length > 1) return;
+
+          for (Appointment appointment in calendarTapDetails.appointments!) {
+            final [type, id] = (appointment.id as String).split("_");
+
+            if (type == "schedule") {
+              final schedule = widget.schedules
+                  .where((element) => element.id == id)
+                  .firstOrNull;
+
+              if (schedule == null) return;
+
+              final subject = widget.subjects
+                  .where((element) => element.id == schedule.subjectId)
+                  .firstOrNull;
+
+              if (subject == null) return;
+
+              final professor = widget.professors
+                  .where((element) => element.id == subject.professorId)
+                  .firstOrNull;
+
+              if (professor == null) return;
+
+              ScheduleDialog.show(
+                  context: context,
+                  scheduleModel: schedule,
+                  subjectModel: subject,
+                  professorModel: professor);
+            } else {
+              final event = widget.events
+                  .where((element) => element.id == id)
+                  .firstOrNull;
+
+              if (event == null) return;
+
+              EventDialog.show(context: context, eventModel: event);
+            }
+          }
         },
         allowViewNavigation: true,
         allowedViews: _selected == "schedule"

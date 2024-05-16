@@ -121,7 +121,9 @@ class OnboardingCard extends StatelessWidget {
 }
 
 List<String> pageViewList = [
-  'Your Favorite Books. Anytime, Anywhere. Listen and Read with ListenLit.',
-  'Experience Your Favorite Audio Books Like Never Before with ListenLit.',
-  "Immerse Yourself in Your Favorite Books with ListenLit's     Premium Audio books.",
+  'Bienvenido a UniTime',
+  'La manera más fácil y conveniente de gestionar tus horarios y eventos universitarios.',
+  'Mantente al día con tus clases, recibe notificaciones en tiempo real y no te pierdas ningún evento importante.',
+  "Tu vida universitaria, organizada al alcance de tu mano.",
+  "¡Disfruta la experiencia UniTime!"
 ];

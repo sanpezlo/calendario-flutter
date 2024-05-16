@@ -282,7 +282,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextSpan(
                   text: 'Política de privacidad',
                   style: TextStyle(
-                    color: AppColor.kPrimary,
+                    color: AppColor.primary,
                     fontSize: 14,
                     fontFamily: 'Inter',
                     fontWeight: FontWeight.w700,
@@ -308,7 +308,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   password: passwordController.text,
                   programId: programIdController!,
                   semester: int.parse(semesterController!),
-                  
                 )
                     .then(
                   (value) {
@@ -335,7 +334,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             title: '¿Ya tienes una cuenta?',
             subtitle: ' Iniciar sesión',
             subtitleTextStyle: TextStyle(
-              color: AppColor.kPrimary,
+              color: AppColor.primary,
               fontSize: 14,
               fontFamily: 'Inter',
               fontWeight: FontWeight.w700,

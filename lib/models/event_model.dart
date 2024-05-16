@@ -54,6 +54,7 @@ class EventDataSource extends CalendarDataSource {
   EventDataSource({required List<EventModel> source}) {
     appointments = source
         .map((event) => Appointment(
+              id: "event_${event.id}",
               startTime: event.date,
               endTime: DateTime(
                 event.date.year,

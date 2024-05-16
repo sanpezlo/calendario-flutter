@@ -111,6 +111,7 @@ class ScheduleDataSource extends CalendarDataSource {
 
     appointments = source
         .map((e) => Appointment(
+            id: "schedule_${e.id}",
             subject: calendarView == CalendarView.workWeek
                 ? subjects
                     .firstWhere((element) => element.id == e.subjectId)
