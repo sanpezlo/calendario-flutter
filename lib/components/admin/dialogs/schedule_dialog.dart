@@ -20,6 +20,7 @@ import 'package:uuid/uuid.dart';
 class ScheduleDialog extends StatefulWidget {
   final List<SubjectModel> subjects;
   final List<ProgramModel> programs;
+  final List<ScheduleModel> schedules;
 
   final ScheduleModel? scheduleModel;
   final bool isDelete;
@@ -28,6 +29,7 @@ class ScheduleDialog extends StatefulWidget {
       {super.key,
       required this.subjects,
       required this.programs,
+      required this.schedules,
       this.scheduleModel,
       this.isDelete = false});
 
@@ -38,6 +40,7 @@ class ScheduleDialog extends StatefulWidget {
     required BuildContext context,
     required List<SubjectModel> subjects,
     required List<ProgramModel> programs,
+    required List<ScheduleModel> schedules,
     ScheduleModel? scheduleModel,
     bool isDelete = false,
   }) {
@@ -46,6 +49,7 @@ class ScheduleDialog extends StatefulWidget {
       builder: (context) => ScheduleDialog(
         subjects: subjects,
         programs: programs,
+        schedules: schedules,
         scheduleModel: scheduleModel,
         isDelete: isDelete,
       ),
@@ -54,6 +58,34 @@ class ScheduleDialog extends StatefulWidget {
 }
 
 class _ScheduleDialogState extends State<ScheduleDialog> {
+  final List<TimeOfDay> validTimes = [
+    const TimeOfDay(hour: 7, minute: 00),
+    const TimeOfDay(hour: 7, minute: 50),
+    const TimeOfDay(hour: 8, minute: 40),
+    const TimeOfDay(hour: 9, minute: 30),
+    const TimeOfDay(hour: 10, minute: 20),
+    const TimeOfDay(hour: 11, minute: 10),
+    const TimeOfDay(hour: 12, minute: 00),
+    const TimeOfDay(hour: 12, minute: 50),
+    const TimeOfDay(hour: 13, minute: 50),
+    const TimeOfDay(hour: 14, minute: 40),
+    const TimeOfDay(hour: 15, minute: 30),
+    const TimeOfDay(hour: 16, minute: 20),
+    const TimeOfDay(hour: 17, minute: 10),
+    const TimeOfDay(hour: 18, minute: 00),
+    const TimeOfDay(hour: 18, minute: 50),
+    const TimeOfDay(hour: 19, minute: 40),
+    const TimeOfDay(hour: 20, minute: 30),
+    const TimeOfDay(hour: 21, minute: 20),
+    const TimeOfDay(hour: 22, minute: 10),
+    const TimeOfDay(hour: 18, minute: 15),
+    const TimeOfDay(hour: 19, minute: 05),
+    const TimeOfDay(hour: 19, minute: 55),
+    const TimeOfDay(hour: 20, minute: 15),
+    const TimeOfDay(hour: 21, minute: 05),
+    const TimeOfDay(hour: 21, minute: 55),
+  ];
+
   final _formKey = GlobalKey<FormState>();
 
   String? subjectIdController;
@@ -423,17 +455,78 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
                           },
                         );
                       } else {
+                        final newSchedule = ScheduleModel(
+                          id: const Uuid().v4(),
+                          subjectId: subjectIdController!,
+                          startTime: startTimeController!,
+                          endTime: endTimeController!,
+                          day: Day.values.firstWhere(
+                              (element) => element.name == dayController),
+                          classroom: classroomController.text,
+                        );
+
+                        final subject = widget.subjects
+                            .where(
+                                (subject) => subject.id == subjectIdController)
+                            .first;
+
+                        final program = widget.programs
+                            .where((program) => program.id == subject.programId)
+                            .first;
+
+                        if (!validTimes.contains(newSchedule.startTime) ||
+                            !validTimes.contains(newSchedule.endTime)) {
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            ErrorDialog.show(
+                              context: context,
+                              errorModel: ErrorModel(
+                                message: "Por favor seleccione una hora válida",
+                              ),
+                            );
+                          }
+
+                          return;
+                        }
+
+                        if (!isValidScheduleForProgram(
+                            programId: subject.programId,
+                            semester: subject.semester,
+                            newSchedule: newSchedule)) {
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            ErrorDialog.show(
+                              context: context,
+                              errorModel: ErrorModel(
+                                message:
+                                    "Ya hay una materia en este horario para ${program.name} semestre ${subject.semester}",
+                              ),
+                            );
+                          }
+
+                          return;
+                        }
+
+                        if (!isValidScheduleForProfessor(
+                            professorId: subject.professorId,
+                            newSchedule: newSchedule)) {
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            ErrorDialog.show(
+                              context: context,
+                              errorModel: ErrorModel(
+                                message:
+                                    "El profesor ya tiene una materia en este horario",
+                              ),
+                            );
+                          }
+
+                          return;
+                        }
+
                         await FirebaseFirestoreService()
                             .addSchedule(
-                          ScheduleModel(
-                            id: const Uuid().v4(),
-                            subjectId: subjectIdController!,
-                            startTime: startTimeController!,
-                            endTime: endTimeController!,
-                            day: Day.values.firstWhere(
-                                (element) => element.name == dayController),
-                            classroom: classroomController.text,
-                          ),
+                          newSchedule,
                         )
                             .then(
                           (value) {
@@ -457,5 +550,83 @@ class _ScheduleDialogState extends State<ScheduleDialog> {
         ],
       ),
     );
+  }
+
+  bool isValidScheduleForProgram(
+      {required String programId,
+      required int semester,
+      required ScheduleModel newSchedule}) {
+    final schedulesProgram = widget.schedules.where((schedule) {
+      final subject = widget.subjects
+          .where((subject) => subject.id == schedule.subjectId)
+          .first;
+
+      return subject.programId == programId && subject.semester == semester;
+    }).toList();
+
+    for (final schedule in schedulesProgram) {
+      if (schedule.day == newSchedule.day) {
+        if (schedule.startTime == newSchedule.startTime ||
+            schedule.endTime == newSchedule.endTime) {
+          return false;
+        }
+
+        if (schedule.startTime.isBefore(newSchedule.startTime) &&
+            schedule.endTime.isAfter(newSchedule.startTime)) {
+          return false;
+        }
+
+        if (schedule.startTime.isBefore(newSchedule.endTime) &&
+            schedule.endTime.isAfter(newSchedule.endTime)) {
+          return false;
+        }
+
+        if (schedule.startTime.isAfter(newSchedule.startTime) &&
+            schedule.endTime.isBefore(newSchedule.endTime)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  bool isValidScheduleForProfessor({
+    required String professorId,
+    required ScheduleModel newSchedule,
+  }) {
+    final schedulesProfessor = widget.schedules.where((schedule) {
+      final subject = widget.subjects
+          .where((subject) => subject.id == schedule.subjectId)
+          .first;
+
+      return subject.professorId == professorId;
+    }).toList();
+
+    for (final schedule in schedulesProfessor) {
+      if (schedule.day == newSchedule.day) {
+        if (schedule.startTime == newSchedule.startTime ||
+            schedule.endTime == newSchedule.endTime) {
+          return false;
+        }
+
+        if (schedule.startTime.isBefore(newSchedule.startTime) &&
+            schedule.endTime.isAfter(newSchedule.startTime)) {
+          return false;
+        }
+
+        if (schedule.startTime.isBefore(newSchedule.endTime) &&
+            schedule.endTime.isAfter(newSchedule.endTime)) {
+          return false;
+        }
+
+        if (schedule.startTime.isAfter(newSchedule.startTime) &&
+            schedule.endTime.isBefore(newSchedule.endTime)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 }

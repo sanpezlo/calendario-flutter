@@ -132,7 +132,8 @@ class _AdminSchedulesPageState extends State<AdminSchedulesPage> {
                     ScheduleDialog.show(
                         context: context,
                         subjects: subjects,
-                        programs: programs);
+                        programs: programs,
+                        schedules: schedules);
                   },
                   child: const Icon(Icons.add),
                 ),
@@ -154,7 +155,10 @@ class _AdminSchedulesPageState extends State<AdminSchedulesPage> {
                 foregroundColor: AppColor.white,
                 onPressed: () {
                   ScheduleDialog.show(
-                      context: context, subjects: subjects, programs: programs);
+                      context: context,
+                      subjects: subjects,
+                      programs: programs,
+                      schedules: schedules);
                 },
                 child: const Icon(Icons.add),
               ),
@@ -428,6 +432,7 @@ class _FilterTableState extends State<_FilterTable> {
                               context: context,
                               subjects: widget.subjects,
                               programs: widget.programs,
+                              schedules: widget.schedules,
                               scheduleModel: scheduleModel);
                         },
                       ),
@@ -438,6 +443,7 @@ class _FilterTableState extends State<_FilterTable> {
                             context: context,
                             subjects: widget.subjects,
                             programs: widget.programs,
+                            schedules: widget.schedules,
                             scheduleModel: scheduleModel,
                             isDelete: true,
                           );
