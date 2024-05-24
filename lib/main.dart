@@ -50,7 +50,7 @@ class MainApp extends StatelessWidget {
         ),
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: kIsWeb ? AdminSplashPage.id : SplashPage.id,
+      initialRoute: kIsWeb ? SplashPage.id : SplashPage.id,
       routes: {
         SplashPage.id: (context) => const SplashPage(),
         OnBoardingPage.id: (context) => const OnBoardingPage(),

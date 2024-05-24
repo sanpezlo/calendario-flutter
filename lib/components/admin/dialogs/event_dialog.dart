@@ -110,9 +110,9 @@ class _EventDialogState extends State<EventDialog> {
           Text(
             widget.eventModel != null
                 ? widget.isDelete
-                    ? "¿Estás seguro de eliminar este horario?"
-                    : "Actualizar Horario"
-                : "Crear Horario",
+                    ? "¿Estás seguro de eliminar este evento?"
+                    : "Actualizar Evento"
+                : "Crear Evento",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 24,

@@ -154,6 +154,7 @@ class _StreamState extends State<_Stream> {
 
         final subjects = streamSnapshot.data![0].docs
             .map((e) => SubjectModel.fromJson(e.data() as Map<String, dynamic>))
+            .where((element) => element.semester == widget.userModel.semester)
             .toList();
 
         final schedules = streamSnapshot.data![1].docs
